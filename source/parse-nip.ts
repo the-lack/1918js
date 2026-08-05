@@ -1,4 +1,4 @@
-export const parseNip = try_parse_nip;
+export const tryParseNip = try_parse_nip;
 
 
 /* -------------------------------------------------------------------------- */

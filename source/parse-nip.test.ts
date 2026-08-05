@@ -1,6 +1,6 @@
 import { expect, suite } from "vitest";
 import { fc } from '@fast-check/vitest';
-import { NipErrorCode, NipValidationResult, parseNip as parse_nip } from "./parse-nip";
+import { NipErrorCode, NipValidationResult, tryParseNip as parse_nip } from "./parse-nip";
 import { scenario } from "./lib/test-scenario-utility";
 
 /* -------------------------------------------------------------------------- */
