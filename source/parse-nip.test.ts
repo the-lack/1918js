@@ -1,6 +1,6 @@
 import { expect, suite } from "vitest";
 import { fc } from '@fast-check/vitest';
-import { NipErrorCode, NipValidationResult, tryParseNip as parse_nip } from "./parse-nip";
+import { NipErrorName, tryParseNip as parse_nip } from "./parse-nip";
 import { scenario } from "./lib/test-scenario-utility";
 
 /* -------------------------------------------------------------------------- */
@@ -11,100 +11,113 @@ const nips = {
   valid_examples: () => ["7791011327", "7811897358", "5252546391"],
 }
 
+type NipValidationResult = ReturnType<typeof parse_nip>
+
 suite("parse_nip", () => {
 
-  scenario("rejecting too long nip")
+  scenario("too long input")
     .fc()
-    .given("nip number of length > 10", () => get_fc_numeric_string({
-      min_length: 10 + 1,
-    }))
-    .when("nip is parsed", parse_nip)
-    .then("nip is rejected", (result, input) =>
+    .given("string of length > 10", () => fc.string({ minLength: 10 + 1 }))
+    .when("string is parsed as nip", parse_nip)
+    .then("string is rejected for being too long", (result, input) =>
       expect(result).toStrictEqual<NipValidationResult>({
-        success: false,
-        errorCode: "NIP_INVALID_LENGTH",
-        meta: {
-          expectedLength: 10,
-          receivedLength: input.length
+        ok: false,
+        error: {
+          name: "NipInvalidLength",
+          message: "NIP has invalid length",
+          meta: {
+            expectedLength: 10,
+            receivedLength: input.length
+          }
         }
       })
     )
 
-  scenario("rejecting too short nip")
+  scenario("too short input")
     .fc()
-    .given("nip number of length < 10", () => get_fc_numeric_string({
-      max_length: 10 - 1,
-    }))
+    .given("nip number of length < 10", () => fc.string({ maxLength: 10 - 1 }))
     .when("nip is parsed", parse_nip)
     .then("nip is rejected", (result, input) =>
       expect(result).toStrictEqual<NipValidationResult>({
-        success: false,
-        errorCode: "NIP_INVALID_LENGTH",
-        meta:
-        {
-          expectedLength: 10,
-          receivedLength: input.length
+        ok: false,
+        error: {
+          name: "NipInvalidLength",
+          message: "NIP has invalid length",
+          meta: {
+            expectedLength: 10,
+            receivedLength: input.length
+          }
         }
       })
     )
 
-  scenario("not rejecting valid length nip")
+  scenario("perfect length input")
     .fc()
-    .given("nip number of length = 10", () => get_fc_numeric_string({
-      min_length: 10, max_length: 10,
-    }))
-    .when("nip is parsed", parse_nip)
-    .then("nip is not rejected for invalid length", (result) =>
-      expect(result?.errorCode).not.toEqual<NipErrorCode>("NIP_INVALID_LENGTH")
-    )
+    .given("number of length = 10", () => fc.string({ minLength: 10, maxLength: 10 }))
+    .when("number is parsed", parse_nip)
+    .then("number is not rejected for invalid length", (result) => {
+      expect(result?.error?.name).not.toBe<NipErrorName>("NipInvalidLength")
+    })
 
-  scenario("rejecting non-numeric nip")
+  scenario("non-numeric input with proper length")
     .fc()
-    .given("non-numeric nip", () =>
+    .given("non-numeric input", () =>
       get_fc_string_with_at_least_one_non_digit()
         .filter(value => value.length === 10))
-    .when("nip is parsed", parse_nip)
-    .then("nip is rejected for containing non-digits", (result) =>
+    .when("input is parsed", parse_nip)
+    .then("input is rejected for containing non-digits", (result) =>
       expect(result).toStrictEqual<NipValidationResult>({
-        success: false,
-        errorCode: "NIP_CONTAINS_NON_DIGITS",
+        ok: false,
+        error: {
+          name: "NipContainsNonDigits",
+          message: "NIP contains characters that are not digits"
+        }
       })
     )
 
-  scenario("not rejecting numeric nip")
+  scenario("digit-only input with proper length")
     .fc()
-    .given("numeric nip", () => get_fc_numeric_string({ min_length: 10, max_length: 10 }))
-    .when("nip is parsed", parse_nip)
-    .then("nip is not rejected for containing non-digits", (result) =>
+    .given("digit-only input", () => get_fc_numeric_string({ min_length: 10, max_length: 10 }))
+    .when("input is parsed", parse_nip)
+    .then("is not rejected for containing non-digits", (result) =>
       expect(result).not.toStrictEqual<NipValidationResult>({
-        success: false,
-        errorCode: "NIP_CONTAINS_NON_DIGITS",
+        ok: false,
+        error: {
+          name: "NipContainsNonDigits",
+          message: "NIP contains characters that are not digits"
+        }
       })
     )
 
-  scenario("rejecting nips with invalid checksum")
+  scenario("nips with mismatched control digit")
     .for_values(nips.valid_examples())
-    .given("nip with invalid checksum ($tampered)", (valid_nip) => tamper_nip_checksum(valid_nip))
+    .given("nip with invalid control digit ($tampered)", (valid_nip) => tamper_nip_control_digit(valid_nip))
     .when("nip is parsed", (transformed_nip) => parse_nip(transformed_nip.tampered))
     .then("nip is rejected", (result, input) => {
       expect(result).toStrictEqual<NipValidationResult>({
-        success: false,
-        errorCode: "NIP_INVALID_CHECKSUM",
-        meta: {
-          controlNumberIndex: 9,
-          expectedControlNumber: input.originalControlNumber,
-          receivedControlNumber: input.receivedControlNumber,
+        ok: false,
+        error: {
+          name: "NipControlDigitMismatch",
+          message: "Received NIP control digit does not match calculated control digit",
+          meta: {
+            controlDigitIndex: 9,
+            expectedControlDigit: input.original_control_digit,
+            receivedControlDigit: input.received_control_digit,
+          }
         }
       })
     })
 
-  scenario("rejecting nips where calculated checksum equals 10")
-    .given("nip with calculated checksum equal to 10", () => "9000000000")
+  scenario("rejecting nips where calculated control digit equals 10")
+    .given("nip where calculated control digit is equal to 10", () => "9000000000")
     .when("nip is parsed", parse_nip)
-    .then("nip is rejected", (result) => {
+    .then("nip is rejected for invalid control digit equal 10", (result) => {
       expect(result).toStrictEqual<NipValidationResult>({
-        success: false,
-        errorCode: "NIP_CHECKSUM_CANNOT_BE_10",
+        ok: false,
+        error: {
+          name: "NipCalculatedControlDigitCannotBeTen",
+          message: "Control digit calculated for NIP cannot equal 10"
+        }
       });
     });
 
@@ -114,7 +127,7 @@ suite("parse_nip", () => {
     .when("nip is parsed", parse_nip)
     .then("nip is accepted", (result, input) => {
       expect(result).toStrictEqual<NipValidationResult>({
-        success: true,
+        ok: true,
         value: input
       })
     })
@@ -138,24 +151,23 @@ function get_fc_string_with_at_least_one_non_digit() {
   return fc.stringMatching(/.*\D.*/);
 }
 
-function tamper_nip_checksum(nip: string) {
+function tamper_nip_control_digit(nip: string) {
   const nip_array = [...nip];
 
-  const originalControlNumber = Number(nip_array[9]);
+  const original_control_digit = Number(nip_array[9]);
 
-  const receivedControlNumber =
-    originalControlNumber === 9
+  const received_control_digit =
+    original_control_digit === 9
       ? 8
-      : originalControlNumber + 1;
+      : original_control_digit + 1;
 
-  nip_array[9] = String(receivedControlNumber);
+  nip_array[9] = String(received_control_digit);
 
   return {
     original: nip,
     tampered: nip_array.join(""),
-    originalControlNumber,
-    receivedControlNumber,
+    original_control_digit,
+    received_control_digit,
   };
 }
-
 
