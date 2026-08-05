@@ -15,9 +15,7 @@
     "@types/node": "^26.1.2",
     "fast-check": "^4.9.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
-  },
-  "dependencies": {
+    "vitest": "^4.1.10",
     "@fast-check/vitest": "^0.4.1",
     "@vitest/ui": "4.1.10"
   }
