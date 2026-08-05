@@ -127,7 +127,7 @@ function control_digit_mismatch(control_digit: { expected: number; received: num
 /* -------------------------------------------------------------------------- */
 
 
-type NipError =
+export type NipError =
   |
   {
     name: "NipInvalidLength"
