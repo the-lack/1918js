@@ -2,7 +2,6 @@ import { err, ok, type Result } from "./lib/result"
 
 export { validate_nip, Nip, type NipError, type NipErrorName };
 
-// @summary value object implementation for NIP with nominal typing
 class Nip {
   #value: string;
 
@@ -10,8 +9,6 @@ class Nip {
     this.#value = nip;
   }
 
-  // @param   nip_candidate - raw NIP string to validate
-  // @returns result containing either successfully parsed Nip instance or a NipError
   static try_parse(nip_candidate: string): Result<Nip, NipError> {
     const result = validate_nip(nip_candidate)
 
@@ -19,12 +16,10 @@ class Nip {
     else return ok(new Nip(result.value))
   }
 
-  // @returns valid NIP value in a string format
   as_string(): string {
     return this.#value;
   }
 
-  // @summary compares this instance with another value for equality
   equals(other: unknown): other is Nip {
     if (this === other) return true;
     if (!(other instanceof Nip)) return false;
@@ -33,32 +28,6 @@ class Nip {
   }
 }
 
-
-/* -------------------------------------------------------------------------- */
-/*                                    Entry                                   */
-/* -------------------------------------------------------------------------- */
-
-/**
- * @summary   Parses and validates NIP.
- * @param     {string} nip - 10-digit NIP
- * @returns   Result<string, NipError> object indicating success or failure.
- *
- * @throws    This function does not throw.
- *
- * @description
- * Performs, in order, following validation checks:
- * - the input length is exactly 10 characters
- * - the input contains only digits
- * - the control digit matches the checksum computed from the first nine digits
- * - the computed checksum is not `10`
- *
- * @example
- * const result = try_parse_Nip("5260250995");
- * if (result.ok) console.log(result.value);
- *
- * @see Standard documentation - https://taxation-customs.ec.europa.eu/online-services/online-services-and-databases-taxation/taxpayer-identification-number-tin_en#general-overview
- *
- */
 function validate_nip(nip: string): Result<string, NipError> {
 
   if (!has_valid_length(nip)) return err(invalid_length(nip));
@@ -72,10 +41,6 @@ function validate_nip(nip: string): Result<string, NipError> {
   return ok(nip);
 
 }
-
-/* -------------------------------------------------------------------------- */
-/*                                 Validation                                 */
-/* -------------------------------------------------------------------------- */
 
 const NIP_CONTROL_DIGIT_INDEX = 9
 const NIP_EXPECTED_LENGTH = 10
@@ -106,10 +71,6 @@ function derive_nip_control_digits(nip: string) {
   };
 
 }
-
-/* -------------------------------------------------------------------------- */
-/*                                  Errors                                    */
-/* -------------------------------------------------------------------------- */
 
 function invalid_characters(): NipError {
   return {
@@ -148,11 +109,6 @@ function control_digit_mismatch(control_digit: { expected: number; received: num
     }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/*                                  Types                                     */
-/* -------------------------------------------------------------------------- */
-
 
 type NipError =
   |
