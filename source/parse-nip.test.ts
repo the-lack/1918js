@@ -1,6 +1,6 @@
 import { expect, suite } from "vitest";
 import { fc } from '@fast-check/vitest';
-import { NipErrorName, tryParseNip as parse_nip } from "./parse-nip";
+import { NipErrorName, try_parse_nip as parse_nip } from "./parse-nip";
 import { scenario } from "./lib/test-scenario-utility";
 
 /* -------------------------------------------------------------------------- */
@@ -26,8 +26,8 @@ suite("parse_nip", () => {
           name: "NipInvalidLength",
           message: "NIP has invalid length",
           meta: {
-            expectedLength: 10,
-            receivedLength: input.length
+            expected_length: 10,
+            received_length: input.length
           }
         }
       })
@@ -44,8 +44,8 @@ suite("parse_nip", () => {
           name: "NipInvalidLength",
           message: "NIP has invalid length",
           meta: {
-            expectedLength: 10,
-            receivedLength: input.length
+            expected_length: 10,
+            received_length: input.length
           }
         }
       })
@@ -100,9 +100,9 @@ suite("parse_nip", () => {
           name: "NipControlDigitMismatch",
           message: "Received NIP control digit does not match calculated control digit",
           meta: {
-            controlDigitIndex: 9,
-            expectedControlDigit: input.original_control_digit,
-            receivedControlDigit: input.received_control_digit,
+            control_digit_index: 9,
+            expected_control_digit: input.original_control_digit,
+            received_control_digit: input.received_control_digit,
           }
         }
       })

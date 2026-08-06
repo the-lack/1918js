@@ -25,14 +25,7 @@ import { err, ok, type Result } from "./lib/result"
  * @see Standard documentation - https://taxation-customs.ec.europa.eu/online-services/online-services-and-databases-taxation/taxpayer-identification-number-tin_en#general-overview
  *
  */
-export const tryParseNip = try_parse_nip;
-
-
-/* -------------------------------------------------------------------------- */
-/*                              Implementation                                */
-/* -------------------------------------------------------------------------- */
-
-function try_parse_nip(nip: string): Result<string, NipError> {
+export function try_parse_nip(nip: string): Result<string, NipError> {
 
   if (!has_valid_length(nip)) return err(invalid_length(nip));
   if (!has_only_digits(nip)) return err(invalid_characters());
@@ -96,8 +89,8 @@ function invalid_length(nip: string): NipError {
     name: "NipInvalidLength",
     message: "NIP has invalid length",
     meta: {
-      expectedLength: NIP_EXPECTED_LENGTH,
-      receivedLength: nip.length
+      expected_length: NIP_EXPECTED_LENGTH,
+      received_length: nip.length
     }
   }
 }
@@ -115,9 +108,9 @@ function control_digit_mismatch(control_digit: { expected: number; received: num
     message: "Received NIP control digit does not match calculated control digit",
     meta:
     {
-      expectedControlDigit: control_digit.expected,
-      receivedControlDigit: control_digit.received,
-      controlDigitIndex: NIP_CONTROL_DIGIT_INDEX,
+      expected_control_digit: control_digit.expected,
+      received_control_digit: control_digit.received,
+      control_digit_index: NIP_CONTROL_DIGIT_INDEX,
     }
   }
 }
@@ -133,8 +126,8 @@ export type NipError =
     name: "NipInvalidLength"
     message: "NIP has invalid length"
     meta: {
-      expectedLength: typeof NIP_EXPECTED_LENGTH
-      receivedLength: number
+      expected_length: typeof NIP_EXPECTED_LENGTH
+      received_length: number
     };
   }
   |
@@ -152,9 +145,9 @@ export type NipError =
     name: "NipControlDigitMismatch",
     message: "Received NIP control digit does not match calculated control digit"
     meta: {
-      expectedControlDigit: number
-      receivedControlDigit: number
-      controlDigitIndex: typeof NIP_CONTROL_DIGIT_INDEX
+      expected_control_digit: number
+      received_control_digit: number
+      control_digit_index: typeof NIP_CONTROL_DIGIT_INDEX
     };
   }
 

@@ -1,1 +1,1 @@
-export { tryParseNip } from "./source/parse-nip";
+export { try_parse_nip } from "./source/parse-nip";
