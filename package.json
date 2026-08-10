@@ -12,11 +12,14 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
-    "@types/node": "^26.1.2",
-    "fast-check": "^4.9.0",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.10",
     "@fast-check/vitest": "^0.4.1",
-    "@vitest/ui": "4.1.10"
+    "@stryker-mutator/core": "^8.4.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "@types/node": "^26.1.2",
+    "@vitest/coverage-v8": "4.1.10",
+    "@vitest/ui": "4.1.10",
+    "fast-check": "^4.9.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.10"
   }
 }

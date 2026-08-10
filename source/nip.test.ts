@@ -2,6 +2,7 @@ import { expect, suite } from "vitest";
 import { fc } from '@fast-check/vitest';
 import { NipErrorName, validate_nip } from "./nip";
 import { scenario } from "./lib/test-scenario-utility";
+import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities";
 
 /* -------------------------------------------------------------------------- */
 /*                               Test Suite                                   */
@@ -137,19 +138,6 @@ suite("parse_nip", () => {
 /* -------------------------------------------------------------------------- */
 /*                                  Helpers                                    */
 /* -------------------------------------------------------------------------- */
-
-function get_fc_numeric_string(options: { min_length?: number; max_length?: number; }) {
-  return fc
-    .array(fc.integer({ min: 0, max: 9 }), {
-      minLength: options?.min_length,
-      maxLength: options?.max_length,
-    })
-    .map(digits => digits.join(""));
-}
-
-function get_fc_string_with_at_least_one_non_digit() {
-  return fc.stringMatching(/.*\D.*/);
-}
 
 function tamper_nip_control_digit(nip: string) {
   const nip_array = [...nip];
