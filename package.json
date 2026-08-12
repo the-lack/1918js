@@ -1,9 +1,10 @@
 {
-  "name": "1918.js",
-  "version": "1.0.0",
+  "name": "1918js",
+  "version": "0.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
+    "works": "rm -r ./dist || pnpm build --noEmit && pnpm test run --coverage && pnpm tsdown",
     "build": "tsc",
     "test": "vitest"
   },
@@ -19,6 +20,7 @@
     "@vitest/coverage-v8": "4.1.10",
     "@vitest/ui": "4.1.10",
     "fast-check": "^4.9.0",
+    "tsdown": "^0.22.14",
     "typescript": "^6.0.2",
     "vitest": "^4.1.10"
   }

@@ -5,7 +5,10 @@
      "moduleResolution": "Bundler",
      "declaration": true,
      "outDir": "./dist",
+     "ignoreDeprecations": "6.0",
+     "skipLibCheck": true,
      "strict": true
    },
-   "include": ["**/*"]
+   "ignoreDeprecations": "6.0",
+   "include": ["**/*"],
 }
