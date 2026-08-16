@@ -34,7 +34,13 @@ type WhenStep<T, Z> = {
 type ThenStep<Z, G> = {
   kind: "then";
   label: string;
-  fn: (then_result: Z, when_input: G) => void;
+  fn: (when_result: Z, when_input: G) => void;
+};
+
+type AndStep<Z, G> = {
+  kind: "and_also";
+  label: string;
+  fn: (when_result: Z, when_input: G) => void;
 };
 
 function template_label(
@@ -104,9 +110,26 @@ function make_then() {
     const label = template_label(strings, values);
 
     return <Z, G>(
-      fn: (then_result: Z, when_input: G) => void,
+      fn: (when_result: Z, when_input: G) => void,
     ): ThenStep<Z, G> & MetaData => ({
       kind: "then",
+      label,
+      fn,
+    });
+  };
+}
+
+function make_and() {
+  return (
+    strings: TemplateStringsArray,
+    ...values: unknown[]
+  ) => {
+    const label = template_label(strings, values);
+
+    return <Z, G>(
+      fn: (when_result: Z, when_input: G) => void,
+    ): AndStep<Z, G> & MetaData => ({
+      kind: "and_also",
       label,
       fn,
     });
@@ -118,6 +141,7 @@ export const $ = {
   given: make_given(),
   when: make_when(),
   then: make_then(),
+  and: make_and()
 };
 
 type GivenValue<G> =
@@ -128,6 +152,7 @@ type GivenValue<G> =
   : G extends GivenSuchAsStep<infer T>
   ? T
   : never;
+
 
 function scenario(
   strings: TemplateStringsArray,
@@ -142,6 +167,7 @@ function scenario(
     given: G,
     when: WhenStep<GivenValue<G>, Z> & MetaData,
     then: ThenStep<Z,GivenValue<G> > & MetaData,
+    ...ands: AndStep<Z, GivenValue<G>>[]
   ) {
 
 
@@ -155,10 +181,10 @@ function scenario(
           (`GIVEN ${given.label} WHEN ${when.label} THEN ${then.label}`, (given_result) => {
             const when_result = when.fn(given_result);
             then.fn(when_result,given_result);
+            ands.forEach(and_expression => and_expression.fn(when_result, given_result))
           })
             return
           }
-
 
         it(
           `GIVEN ${given.label} WHEN ${when.label} THEN ${then.label}`,
@@ -168,8 +194,9 @@ function scenario(
                 fc.property(
                   given.fn(undefined as never),
                   (given_result) => {
-                    const then_result = when.fn(given_result);
-                    then.fn(then_result, given_result);
+                    const when_result = when.fn(given_result);
+                    then.fn(when_result, given_result);
+                    ands.forEach(and_expression => and_expression.fn(when_result, given_result))
                   },
                 ),
               );
@@ -179,9 +206,9 @@ function scenario(
 
             if (given.kind === "given") {
               const given_result = given.fn(undefined as never);
-              const then_result = when.fn(given_result);
-
-              then.fn(then_result, given_result);
+              const when_result = when.fn(given_result);
+              then.fn(when_result, given_result);
+              ands.forEach(and_expression => and_expression.fn(when_result, given_result))
 
               return;
             }
