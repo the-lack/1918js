@@ -166,54 +166,80 @@ function scenario(
   >(
     given: G,
     when: WhenStep<GivenValue<G>, Z> & MetaData,
-    then: ThenStep<Z,GivenValue<G> > & MetaData,
+    then: ThenStep<Z, GivenValue<G>> & MetaData,
     ...ands: AndStep<Z, GivenValue<G>>[]
   ) {
 
+    describe(`SCENARIO: ${title}`, () => {
 
-    describe(title, () => {
 
       if (given.kind === "given_such_as") {
-        const given_values = given.fn(undefined as never);
+        const given_result = given.fn(undefined as never);
+        describe.each(given_result)(`GIVEN ${given.label}`, (given_single_result) => {
+          describe(`WHEN ${when.label}`, () => {
+            const when_result = when.fn(given_single_result);
 
-        it.each
-          (given_values)
-          (`GIVEN ${given.label} WHEN ${when.label} THEN ${then.label}`, (given_result) => {
-            const when_result = when.fn(given_result);
-            then.fn(when_result,given_result);
-            ands.forEach(and_expression => and_expression.fn(when_result, given_result))
+            it(`THEN ${then.label}`, () => {
+              then.fn(when_result, given_single_result);
+            })
+
+            for (const and of ands) {
+              it(`AND ${and.label}`, () => {
+                and.fn(when_result, given_single_result)
+              })
+            }
           })
-            return
-          }
+        })
 
-        it(
-          `GIVEN ${given.label} WHEN ${when.label} THEN ${then.label}`,
-          () => {
-            if (given.kind === "given_fc") {
-              fc.assert(
-                fc.property(
-                  given.fn(undefined as never),
-                  (given_result) => {
-                    const when_result = when.fn(given_result);
-                    then.fn(when_result, given_result);
-                    ands.forEach(and_expression => and_expression.fn(when_result, given_result))
-                  },
-                ),
-              );
+        return
+      }
 
-              return;
-            }
 
-            if (given.kind === "given") {
-              const given_result = given.fn(undefined as never);
-              const when_result = when.fn(given_result);
+      if (given.kind === "given") {
+        const given_result = given.fn(undefined as never);
+        describe(`GIVEN ${given.label}`, () => {
+          describe(`WHEN ${when.label}`, () => {
+            const when_result = when.fn(given_result);
+
+            it(`THEN ${then.label}`, () => {
               then.fn(when_result, given_result);
-              ands.forEach(and_expression => and_expression.fn(when_result, given_result))
+            })
 
-              return;
+            for (const and of ands) {
+              it(`AND ${and.label}`, () => {
+                and.fn(when_result, given_result)
+              })
             }
-          },
-        );
-      });
+          })
+        })
+        return
+      }
+
+      if (given.kind === "given_fc") {
+        describe(`GIVEN ${given.label}`, () => {
+          describe(`WHEN ${when.label}`, () => {
+            it(
+              `THEN ${then.label} ${ands.map(and => "AND " + and.label).join(" ")}`,
+              () => {
+                fc.assert(
+                  fc.property(
+                    given.fn(undefined as never),
+                    (given_result) => {
+                      const when_result = when.fn(given_result);
+                      then.fn(when_result, given_result);
+
+                      for (const and of ands) {
+                        and.fn(when_result, given_result)
+                      }
+                    },
+                  ),
+                );
+              })
+          })
+        })
+        return
+      }
+
+    })
   };
 }
