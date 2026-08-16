@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "works": "rm -r ./dist || pnpm build --noEmit && vitest run --coverage && pnpm tsdown && exit",
+    "works": "rm -r ./dist || pnpm tsc --noEmit && vitest run --coverage && pnpm tsdown && exit",
     "test:mutation": "stryker run"
   },
   "keywords": [],
