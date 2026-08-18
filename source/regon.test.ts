@@ -37,12 +37,12 @@ scenario `rejecting for invalid length`
 
     when `input is validated`
       (
-        _ => validate_regon(_.value)
+        ({ input }) => validate_regon(input.value)
       ),
 
     then `input is rejected for invalid length`
       (
-        (result, input) => {
+        ({ result, input }) => {
           expect(result)
             .toStrictEqual(invalid_length_error(input.value))
         }
@@ -59,12 +59,12 @@ scenario `not rejecting input for invalid length`
 
     when `input is validated`
       (
-        _ => validate_regon(_.value)
+        ({ input })=> validate_regon(input.value)
       ),
 
     then `input is not rejected for invalid length`
       (
-        (result, input) => expect(result).not.toEqual(invalid_length_error(input.value))
+        ({ result, input }) => expect(result).not.toEqual(invalid_length_error(input.value))
       )
   )
 
@@ -81,12 +81,12 @@ scenario `rejecting for non-digit characters`
 
     when `input validated`
       (
-        _ => validate_regon(_)
+        ({ input }) => validate_regon(input)
       ),
 
     then `input is rejected for having non-digit characters`
       (
-        result => {
+        ({ result }) => {
           expect(result).toStrictEqual({
             ok: false,
             error: invalid_characters_error()
@@ -107,12 +107,12 @@ scenario `not rejecting when containing only digits`
 
     when `input validated`
       (
-        _ => validate_regon(_)
+        ({ input }) => validate_regon(input)
       ),
 
     then `input is not rejected for having non-digit characters`
       (
-        result => {
+        ({ result }) => {
           expect(result).not.toEqual({
             ok: false,
             error: invalid_characters_error()
@@ -131,12 +131,12 @@ scenario `accepting valid regon`
 
     when `input validated`
       (
-        _ => validate_regon(_)
+        ({ input }) => validate_regon(input)
       ),
 
     then `input is accepted`
       (
-        (result, input) => {
+        ({ result, input }) => {
           expect(result.ok).toBe(true)
           expect(result.value).toBe(input)
         }
@@ -154,12 +154,12 @@ scenario `rejecting regon with invalid control digit`
 
     when `regon is validated`
       (
-        _ => validate_regon(_)
+        ({ input }) => validate_regon(input)
       ),
 
     then `regon is rejected for invalid control digit`
       (
-        result =>
+        ({ result }) =>
           expect(result).toMatchObject({
             ok: false,
             error: {
@@ -180,12 +180,12 @@ scenario `rejecting regon containing only 0s`
 
     when `regon is validated`
       (
-        _ => validate_regon(_)
+        ({ input }) => validate_regon(input)
       ),
 
     then `regon is rejected for containing only 0s`
       (
-        result => {
+        ({ result }) => {
           expect(result.ok).toBe(false)
           expect(result.error).toEqual(contains_only_zeros_error())
         }
@@ -205,12 +205,12 @@ scenario `rejecting regon with any of the digits tampered`
 
     when `tampered regon is validated`
       (
-        _ => validate_regon(_)
+        ({ input }) => validate_regon(input)
       ),
 
     then `regon is rejected for having invalid control digit`
       (
-        result =>
+        ({ result }) =>
           expect(result).toMatchObject({
             ok: false,
             error: {
@@ -235,12 +235,12 @@ scenario `valid regon rejected after tampering control digit`
 
     when `tampered regon validated`
       (
-        _ => validate_regon(_.tampered_regon)
+        ({ input }) => validate_regon(input.tampered_regon)
       ),
 
     then `regon is rejected for invalid control digit`
       (
-        (result, input) => {
+        ({ result, input }) => {
           expect(result.ok).toBe(false)
           expect(result.error).toStrictEqual(invalid_control_digit_error({
             expected_control_digit: input.original_control_digit,

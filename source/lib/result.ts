@@ -1,10 +1,10 @@
-interface Success<T> {
+export interface Success<T> {
   readonly ok: true
   readonly value: T
   readonly error?: never
 }
 
-interface Failure<E extends Error> {
+export interface Failure<E extends Error> {
   readonly ok: false
   readonly error: E
   readonly value?: never

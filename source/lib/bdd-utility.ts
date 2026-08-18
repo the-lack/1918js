@@ -7,40 +7,40 @@ type MetaData = {
 
 type Given<T> = GivenStep<T> | GivenFcStep<T> | GivenSuchAsStep<T>
 
-type GivenStep<T> = {
+type GivenStep<GivenReturnType> = {
   kind: "given";
   label: string;
-  fn: (_: never) => T;
+  fn: (_: never) => GivenReturnType;
 };
 
-type GivenFcStep<T> = {
+type GivenFcStep<GivenReturnedArbitraryType> = {
   kind: "given_fc";
   label: string;
-  fn: (_: never) => fc.Arbitrary<T>;
+  fn: (_: never) => fc.Arbitrary<GivenReturnedArbitraryType>;
 };
 
-type GivenSuchAsStep<T> = {
+type GivenSuchAsStep<GivenSuchAsReturnType> = {
   kind: "given_such_as";
   label: string;
-  fn: (_: never) => T[];
+  fn: (_: never) => GivenSuchAsReturnType[];
 };
 
-type WhenStep<T, Z> = {
+type WhenStep<GivenReturnType, WhenReturnType> = {
   kind: "when";
   label: string;
-  fn: (given_result: T) => Z;
+  fn: (args: { input: GivenReturnType }) => WhenReturnType;
 };
 
-type ThenStep<Z, G> = {
+type ThenStep<WhenReturnTYpe, GivenReturnType> = {
   kind: "then";
   label: string;
-  fn: (when_result: Z, when_input: G) => void;
+  fn: (args: { result: WhenReturnTYpe, input: GivenReturnType }) => void;
 };
 
-type AndStep<Z, G> = {
+type AndStep<WhenReturnType, GivenReturnType> = {
   kind: "and_also";
   label: string;
-  fn: (when_result: Z, when_input: G) => void;
+  fn: (args: { result: WhenReturnType, input: GivenReturnType }) => void;
 };
 
 function template_label(
@@ -57,25 +57,25 @@ function make_given() {
   ) => {
     const label = template_label(strings, values);
 
-    const given = <T>(
-      fn: (_: never) => T,
-    ): GivenStep<T> & MetaData => ({
+    const given = <GivenReturnType>(
+      fn: (_: never) => GivenReturnType,
+    ): GivenStep<GivenReturnType> & MetaData => ({
       kind: "given",
       label,
       fn,
     });
 
-    given.from_fc = <T>(
-      fn: (_: never) => fc.Arbitrary<T>,
-    ): GivenFcStep<T> & MetaData => ({
+    given.from_fc = <GivenFcReturnType>(
+      fn: (_: never) => fc.Arbitrary<GivenFcReturnType>,
+    ): GivenFcStep<GivenFcReturnType> & MetaData => ({
       kind: "given_fc",
       label,
       fn,
     });
 
-    given.such_as = <T>(
-      fn: (_: never) => T[],
-    ): GivenSuchAsStep<T> & MetaData => ({
+    given.such_as = <GivenSuchAsReturnType>(
+      fn: (_: never) => GivenSuchAsReturnType[],
+    ): GivenSuchAsStep<GivenSuchAsReturnType> & MetaData => ({
       kind: "given_such_as",
       label,
       fn,
@@ -92,9 +92,9 @@ function make_when() {
   ) => {
     const label = template_label(strings, values);
 
-    return <T, Z>(
-      fn: (given_result: T) => Z,
-    ): WhenStep<T, Z> & MetaData => ({
+    return <GivenReturnType, WhenReturnType>(
+      fn: (args: { input: GivenReturnType }) => WhenReturnType,
+    ): WhenStep<GivenReturnType, WhenReturnType> & MetaData => ({
       kind: "when",
       label,
       fn,
@@ -109,9 +109,9 @@ function make_then() {
   ) => {
     const label = template_label(strings, values);
 
-    return <Z, G>(
-      fn: (when_result: Z, when_input: G) => void,
-    ): ThenStep<Z, G> & MetaData => ({
+    return <WhenReturnType, GivenReturnType>(
+      fn: (args: { result: WhenReturnType, input: GivenReturnType }) => void,
+    ): ThenStep<WhenReturnType, GivenReturnType> & MetaData => ({
       kind: "then",
       label,
       fn,
@@ -126,9 +126,9 @@ function make_and() {
   ) => {
     const label = template_label(strings, values);
 
-    return <Z, G>(
-      fn: (when_result: Z, when_input: G) => void,
-    ): AndStep<Z, G> & MetaData => ({
+    return <WhenOutput, GivenInput>(
+      fn: (args: { result: WhenOutput, input: GivenInput }) => void,
+    ): AndStep<WhenOutput, GivenInput> & MetaData => ({
       kind: "and_also",
       label,
       fn,
@@ -174,18 +174,19 @@ function scenario(
 
 
       if (given.kind === "given_such_as") {
-        const given_result = given.fn(undefined as never);
-        describe.each(given_result)(`GIVEN ${given.label}`, (given_single_result) => {
+        const given_inputs = given.fn(undefined as never);
+
+        describe.each(given_inputs)(`GIVEN ${given.label}`, (given_single_input) => {
           describe(`WHEN ${when.label}`, () => {
-            const when_result = when.fn(given_single_result);
+            const when_result = when.fn({ input: given_single_input });
 
             it(`THEN ${then.label}`, () => {
-              then.fn(when_result, given_single_result);
+              then.fn({ result: when_result, input: given_single_input });
             })
 
             for (const and of ands) {
               it(`AND ${and.label}`, () => {
-                and.fn(when_result, given_single_result)
+                and.fn({ result: when_result, input: given_single_input })
               })
             }
           })
@@ -196,18 +197,19 @@ function scenario(
 
 
       if (given.kind === "given") {
-        const given_result = given.fn(undefined as never);
+        const given_input = given.fn(undefined as never);
+
         describe(`GIVEN ${given.label}`, () => {
           describe(`WHEN ${when.label}`, () => {
-            const when_result = when.fn(given_result);
+            const when_result = when.fn({ input: given_input });
 
             it(`THEN ${then.label}`, () => {
-              then.fn(when_result, given_result);
+              then.fn({ result: when_result, input: given_input });
             })
 
             for (const and of ands) {
               it(`AND ${and.label}`, () => {
-                and.fn(when_result, given_result)
+                and.fn({ result: when_result, input: given_input })
               })
             }
           })
@@ -224,12 +226,12 @@ function scenario(
                 fc.assert(
                   fc.property(
                     given.fn(undefined as never),
-                    (given_result) => {
-                      const when_result = when.fn(given_result);
-                      then.fn(when_result, given_result);
+                    (given_input) => {
+                      const when_result = when.fn({ input: given_input });
+                      then.fn({ result: when_result, input: given_input });
 
                       for (const and of ands) {
-                        and.fn(when_result, given_result)
+                        and.fn({ result: when_result, input: given_input })
                       }
                     },
                   ),
