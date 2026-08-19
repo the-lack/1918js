@@ -22,8 +22,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "works": "git clean -f -d -x && bun install && bunx tsc && bun test",
-    "test:mutation": "stryker run"
+    "works": "git clean -f -d -x && bun install && bunx tsc && bun test && bunx stryker run"
   },
   "type": "module",
   "dependencies": {

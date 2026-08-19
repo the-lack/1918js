@@ -6,12 +6,17 @@
   "commandRunner": {
     "command": "bun test"
   },
+  "concurrency": "100%",
+  "incremental": true,
+  "incrementalFile": "cache/stryker-mutation-test-file-cache-for-incremental-testing.json",
   "plugins": ["stryker-mutator-bun-runner"],
   "mutate": ["source/regon.ts", "source/nip.ts"],
   "coverageAnalysis": "perTest",
   "reporters": ["html", "clear-text", "progress"],
   "bun": {
     "testFiles": ["**/*.test.ts"],
+    "maxWorkers": 100,
+    "processPool": true,
     "timeout": 30000
   }
 }
