@@ -1,4 +1,4 @@
-import { fc } from "@fast-check/vitest";
+import fc from "fast-check";
 import { describe, it } from "vitest";
 
 export function scenario(scenario_title: string) {

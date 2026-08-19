@@ -109,3 +109,5 @@ need to think about whether then should be able to express the intended/future r
 too many examples
 
 # Make each "AND" statement narrow the type for next one!!! very smart :)
+
+- [ ] Fix the runtime assertion ! issues

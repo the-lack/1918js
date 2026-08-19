@@ -1,8 +1,8 @@
-import { expect } from "vitest";
+import { expect } from "bun:test";
 import { $ } from "./lib/bdd-utility"
 import { validate_regon } from "./regon";
 import { get_fc_numeric_string } from "./lib/fc-utilities";
-import { fc } from "@fast-check/vitest";
+import fc from "fast-check";
 
 const { scenario, given, when, then } = $;
 
@@ -317,7 +317,7 @@ function invalid_length_error(input: string) {
         received_length: input.length
       }
     }
-  }
+  } as const;
 }
 
 function invalid_characters_error() {

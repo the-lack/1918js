@@ -1,6 +1,6 @@
-import { expect, suite } from "vitest";
-import { fc } from '@fast-check/vitest';
-import { NipErrorName, validate_nip } from "./nip";
+import { expect, describe as suite } from "bun:test";
+import fc from 'fast-check';
+import { type NipErrorName, validate_nip } from "./nip";
 import { scenario } from "./lib/test-scenario-utility";
 import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities";
 

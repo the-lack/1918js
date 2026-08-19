@@ -60,10 +60,10 @@ function derive_nip_control_digits(nip: string) {
   const digits = nip.split("").map(Number);
   const digits_except_checksum = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
 
-  const sum = digits_except_checksum.reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index], 0);
+  const sum = digits_except_checksum.reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
 
   const expected_checksum = sum % NIP_MODULO;
-  const received_checksum = digits[NIP_CONTROL_DIGIT_INDEX];
+  const received_checksum = digits[NIP_CONTROL_DIGIT_INDEX]!;
 
   return {
     expected: expected_checksum,

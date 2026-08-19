@@ -1,4 +1,4 @@
-import { fc } from "@fast-check/vitest"
+import fc from "fast-check"
 
 export function get_fc_string_with_at_least_one_non_digit(options?: { exact_length: number }) {
   if (options?.exact_length)

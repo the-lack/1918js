@@ -1,5 +1,5 @@
-import { fc } from "@fast-check/vitest";
-import { describe, it } from "vitest";
+import fc from "fast-check";
+import { it, describe } from "bun:test";
 
 type MetaData = {
   label: string;

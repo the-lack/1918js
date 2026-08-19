@@ -1,4 +1,4 @@
-import { err, ok, Result } from "./lib/result";
+import { err, ok, type Result } from "./lib/result";
 
 export { validate_regon, Regon }
 
