@@ -22,7 +22,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "works": "git clean -f -d -X && bun install && bunx tsc && bun test && bunx stryker run"
+    "works": "git clean -f -d -X && bun install --frozen-lockfile && bun tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel && bunx stryker run"
   },
   "type": "module",
   "dependencies": {

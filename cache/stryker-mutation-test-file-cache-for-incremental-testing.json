@@ -3739,36 +3739,36 @@
   "config": {
     "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
     "tsconfigFile": "tsconfig.stryker-absent.json",
-    "packageManager": "npm",
     "testRunner": "command",
+    "ignorePatterns": [
+      ".git",
+      "bun.lock",
+      "LICENSE",
+      "README.md",
+      "documentation",
+      ".gitignore",
+      "tsdown.config.ts"
+    ],
     "commandRunner": {
-      "command": "bun test"
+      "command": "bun test --concurrent --max-concurrency=4 --parallel"
     },
-    "concurrency": "100%",
+    "concurrency": 3,
     "incremental": true,
     "incrementalFile": "cache/stryker-mutation-test-file-cache-for-incremental-testing.json",
-    "plugins": [
-      "stryker-mutator-bun-runner"
-    ],
     "mutate": [
       "source/regon.ts",
       "source/nip.ts"
     ],
-    "coverageAnalysis": "perTest",
+    "coverageAnalysis": "off",
+    "disableTypeChecks": true,
     "reporters": [
-      "html",
-      "clear-text",
-      "progress"
+      "clear-text"
     ],
-    "bun": {
-      "testFiles": [
-        "**/*.test.ts"
-      ],
-      "maxWorkers": 100,
-      "processPool": true,
-      "timeout": 30000
-    },
+    "inPlace": false,
+    "logLevel": "off",
+    "maxTestRunnerReuse": 1,
     "allowConsoleColors": true,
+    "cleanTempDir": false,
     "checkers": [],
     "checkerNodeArgs": [],
     "clearTextReporter": {
@@ -3789,18 +3789,17 @@
     "eventReporter": {
       "baseDir": "reports/mutation/events"
     },
-    "ignorePatterns": [],
     "ignoreStatic": false,
     "force": false,
     "fileLogLevel": "off",
-    "inPlace": false,
-    "logLevel": "info",
     "maxConcurrentTestRunners": 9007199254740991,
-    "maxTestRunnerReuse": 0,
     "mutator": {
       "plugins": null,
       "excludedMutations": []
     },
+    "plugins": [
+      "@stryker-mutator/*"
+    ],
     "appendPlugins": [],
     "htmlReporter": {
       "fileName": "reports/mutation/mutation.html"
@@ -3808,10 +3807,8 @@
     "jsonReporter": {
       "fileName": "reports/mutation/mutation.json"
     },
-    "disableTypeChecks": true,
     "symlinkNodeModules": true,
     "tempDirName": ".stryker-tmp",
-    "cleanTempDir": true,
     "testRunnerNodeArgs": [],
     "thresholds": {
       "high": 80,
@@ -3825,7 +3822,14 @@
     "disableBail": false,
     "allowEmpty": false,
     "ignorers": [],
-    "testFiles": []
+    "testFiles": [],
+    "typescriptChecker": {
+      "prioritizePerformanceOverAccuracy": true,
+      "experimentalNativePreview": false
+    },
+    "vitest": {
+      "related": true
+    }
   },
   "framework": {
     "name": "StrykerJS",

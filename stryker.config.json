@@ -1,22 +1,21 @@
 {
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
   "tsconfigFile": "tsconfig.stryker-absent.json",
-  "packageManager": "npm",
   "testRunner": "command",
+  "ignorePatterns": [".git", "bun.lock", "LICENSE", "README.md", "documentation", ".gitignore", "tsdown.config.ts"],
   "commandRunner": {
-    "command": "bun test"
+    "command": "bun test --concurrent --max-concurrency=4 --parallel"
   },
-  "concurrency": "100%",
+  "concurrency": 3,
   "incremental": true,
   "incrementalFile": "cache/stryker-mutation-test-file-cache-for-incremental-testing.json",
-  "plugins": ["stryker-mutator-bun-runner"],
   "mutate": ["source/regon.ts", "source/nip.ts"],
-  "coverageAnalysis": "perTest",
-  "reporters": ["html", "clear-text", "progress"],
-  "bun": {
-    "testFiles": ["**/*.test.ts"],
-    "maxWorkers": 100,
-    "processPool": true,
-    "timeout": 30000
-  }
+  "coverageAnalysis": "off",
+  "disableTypeChecks": true,
+  "reporters": ["clear-text"],
+  "inPlace": false,
+  "logLevel": "off",
+  "maxTestRunnerReuse": 1,
+  "allowConsoleColors": true,
+  "cleanTempDir": false
 }
