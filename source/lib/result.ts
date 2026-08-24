@@ -14,8 +14,8 @@ export function ok<T>(value: T): Result<T, never> {
   return { ok: true, value };
 }
 
-export function err<E extends Error>(error: E): Result<never, E> {
-  return { ok: false, error };
+export function err<E extends Error>(error: Readonly<E>): Result<never, E> {
+  return { ok: false, error } as const;
 }
 
 export type Result<T, E extends Error> =

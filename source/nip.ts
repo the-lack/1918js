@@ -72,14 +72,14 @@ function derive_nip_control_digits(nip: string) {
 
 }
 
-function invalid_characters(): NipError {
+function invalid_characters(): Readonly<NipError> {
   return {
     name: "NipContainsNonDigits",
     message: "NIP contains characters that are not digits"
   }
 }
 
-function invalid_length(nip: string): NipError {
+function invalid_length(nip: string): Readonly<NipError> {
   return {
     name: "NipInvalidLength",
     message: "NIP has invalid length",
@@ -90,14 +90,14 @@ function invalid_length(nip: string): NipError {
   }
 }
 
-function invalid_control_digit(): NipError {
+function invalid_control_digit(): Readonly<NipError> {
   return {
     name: "NipCalculatedControlDigitCannotBeTen",
     message: "Control digit calculated for NIP cannot equal 10"
   }
 }
 
-function control_digit_mismatch(control_digit: { expected: number; received: number }): NipError {
+function control_digit_mismatch(control_digit: { expected: number; received: number }): Readonly<NipError> {
   return {
     name: "NipControlDigitMismatch",
     message: "Received NIP control digit does not match calculated control digit",
