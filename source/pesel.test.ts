@@ -1,6 +1,6 @@
 import { expect } from "bun:test"
 import { $ } from "./lib/bdd-utility"
-import { validate_pesel } from "./pesel.ts"
+import { Pesel, validate_pesel } from "./pesel.ts"
 import fc from "fast-check";
 import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities.ts";
 
@@ -31,33 +31,218 @@ const example = {
   thats_not_a_string: fc.anything().filter(element => typeof element !== "string")
 } as const;
 
-// ── Test suite ─────────────────────────────────────────────────────
-scenario `rejects empty input`
-(
-    given `empty input`
-    (
-      _ => example.thats_empty
-    ),
+const pesel_validation_implementations = [Pesel.try_parse, validate_pesel]
 
-    when `empty input validated`
+// ──── Test suite for shared kernel of functional and value object implementations ────
+for(const validate_pesel of pesel_validation_implementations)  {
+    scenario `rejects empty input`
     (
-      test => validate_pesel(test.input)
-    ),
+        given `empty input`
+        (
+          _ => example.thats_empty
+        ),
+
+        when `empty input validated`
+        (
+          test => validate_pesel(test.input)
+        ),
     
-    then `input is rejected`
+        then `input is rejected`
+        (
+          test => expect(test.result.ok).toBe(false)
+        ),
+
+        and `the reason provided in the error is invalid length`
+        (
+          test => expect(test.result.error).toStrictEqual({
+            name: "PeselHasInvalidLength",
+            message: "PESEL has invalid length"
+          })
+        )  
+    )
+
+
+    scenario `rejects non-string input`
     (
-      test => expect(test.result.ok).toBe(false)
+        given `non-string input`.
+        from_fc
+        (
+          _ => example.thats_not_a_string
+        ),
+
+        when `non-string input is rejected`
+        (
+          test => validate_pesel(test.input as any)
+        ),
+    
+        then `input is rejected`
+        (
+          test => expect(test.result.ok).toBe(false)
+        ),
+
+        and `the reason is invalid type`
+        (
+          test => expect(test.result.error).toStrictEqual({
+            name: "PeselIsNotString",
+            message: "PESEL is not of type `string`"
+          })
+        )
+    )
+
+    scenario `rejects blank input`
+    (
+        given `blank input`.
+        from_fc
+        (
+          _ => example.thats_blank
+        ),
+
+        when `blank input is validated`
+        (
+          test => validate_pesel(test.input)
+        ),
+    
+        then `input is rejected`
+        (
+          test => expect(test.result.ok).toBe(false)
+        )
+    )
+
+
+    scenario `rejects non-numeric input`
+    (
+        given `non-numeric input`.
+        from_fc
+        (
+          _ => example.that_contains_at_least_one_non_digit
+        ),
+
+        when `non-numeric input is validated`
+        (
+          test => validate_pesel(test.input)
+        ),
+    
+        then `input is rejected`
+        (
+          test => expect(test.result.ok).toBe(false)
+        ),
+
+        and `the reason is containing non-numeric characters`
+        (
+          test => expect(test.result.error).toStrictEqual({
+            name: "PeselContainsNonDigitCharacters",
+            message: "PESEL contains non-numeric characters"
+          })
+        )
+    )
+
+
+    scenario `rejects numeric input of invalid length`
+    (
+        given `numeric input but of invalid length`.
+        from_fc
+        (
+          _ => example.thats_has_invalid_length
+        ),
+
+        when `validation occurs`
+        (
+          test => validate_pesel(test.input)
+        ),
+    
+        then `input is rejected`
+        (
+          test => expect(test.result.ok).toBe(false)
+        )
+    )
+
+    scenario `rejecting pesel with invalid control number`
+    (
+        given `pesel with invalid control number`
+        (
+          _ => example.that_contains_invalid_control_number.value
+        ),
+
+        when `validation occurs`
+        (
+          test => validate_pesel(test.input)
+        ),
+    
+        then `input is rejected`
+        (
+          test => expect(test.result.ok).toBe(false)
+        ),
+    
+        and `the reason is control digit mismatch`
+        (
+          test => expect(test.result.error).toStrictEqual({
+            name: "PeselControlDigitMismatch",
+            message: "Calculated control digit does not match one contained in the PESEL"
+          })
+        )
+    )
+}
+
+// ──── Test suite for value object implementation ────
+scenario `accepts valid pesel`
+(
+    given `valid pesel`.
+    such_as
+    (
+      _ => [example.thats_valid1, example.thats_valid2, example.thats_valid3]
     ),
 
-    and `the reason provided in the error is invalid length`
+    when `valid pesel is validated`
     (
-      test => expect(test.result.error).toStrictEqual({
-        name: "PeselHasInvalidLength",
-        message: "PESEL has invalid length"
-      })
-    )  
+      test => Pesel.try_parse(test.input)
+    ),
+
+    then `input is accepted`
+    (
+      test => expect(test.result.ok).toBe(true)
+    ),
+
+    and `return value object`
+    (
+      test => expect(test.result.value).toBeInstanceOf(Pesel)
+    ),
+
+    and `value object value contains original input`
+    (
+      test => expect(test.input as string).toEqual(test.result?.value!.as_string())
+    )
 )
 
+scenario `accepts valid pesel with control digit equal zero`
+(
+    given `valid pesel`
+    (
+      _ => example.thats_valid_and_contains_control_digit_equal_zero
+    ),
+
+    when `valid pesel is validated`
+    (
+      test => Pesel.try_parse(test.input)
+    ),
+
+    then `input is accepted`
+    (
+      test => expect(test.result.ok).toBe(true)
+    ),
+   
+    and `return value object`
+    (
+      test => expect(test.result.value).toBeInstanceOf(Pesel)
+    ),
+
+    and `value object value contains original input`
+    (
+      test => expect(test.input as string).toEqual(test.result?.value!.as_string())
+    )
+)
+
+
+// ──── Test suite for functional implementation ────
 scenario `accepts valid pesel`
 (
     given `valid pesel`.
@@ -70,7 +255,7 @@ scenario `accepts valid pesel`
     (
       test => validate_pesel(test.input)
     ),
-    
+
     then `input is accepted`
     (
       test => expect(test.result.ok).toBe(true)
@@ -93,7 +278,7 @@ scenario `accepts valid pesel with control digit equal zero`
     (
       test => validate_pesel(test.input)
     ),
-    
+
     then `input is accepted`
     (
       test => expect(test.result.ok).toBe(true)
@@ -105,123 +290,3 @@ scenario `accepts valid pesel with control digit equal zero`
     )   
 )
 
-
-scenario `rejects non-string input`
-(
-    given `non-string input`.
-    from_fc
-    (
-      _ => example.thats_not_a_string
-    ),
-
-    when `non-string input is rejected`
-    (
-      test => validate_pesel(test.input as any)
-    ),
-    
-    then `input is rejected`
-    (
-      test => expect(test.result.ok).toBe(false)
-    ),
-
-    and `the reason is invalid type`
-    (
-      test => expect(test.result.error).toStrictEqual({
-        name: "PeselIsNotString",
-        message: "PESEL is not of type `string`"
-      })
-    )
-)
-
-scenario `rejects blank input`
-(
-    given `blank input`.
-    from_fc
-    (
-      _ => example.thats_blank
-    ),
-
-    when `blank input is validated`
-    (
-      test => validate_pesel(test.input)
-    ),
-    
-    then `input is rejected`
-    (
-      test => expect(test.result.ok).toBe(false)
-    )
-)
-
-
-scenario `rejects non-numeric input`
-(
-    given `non-numeric input`.
-    from_fc
-    (
-      _ => example.that_contains_at_least_one_non_digit
-    ),
-
-    when `non-numeric input is validated`
-    (
-      test => validate_pesel(test.input)
-    ),
-    
-    then `input is rejected`
-    (
-      test => expect(test.result.ok).toBe(false)
-    ),
-
-    and `the reason is containing non-numeric characters`
-    (
-      test => expect(test.result.error).toStrictEqual({
-        name: "PeselContainsNonDigitCharacters",
-        message: "PESEL contains non-numeric characters"
-      })
-    )
-)
-
-
-scenario `rejects numeric input of invalid length`
-(
-    given `numeric input but of invalid length`.
-    from_fc
-    (
-      _ => example.thats_has_invalid_length
-    ),
-
-    when `validation occurs`
-    (
-      test => validate_pesel(test.input)
-    ),
-    
-    then `input is rejected`
-    (
-      test => expect(test.result.ok).toBe(false)
-    )
-)
-
-scenario `rejecting pesel with invalid control number`
-(
-    given `pesel with invalid control number`
-    (
-      _ => example.that_contains_invalid_control_number.value
-    ),
-
-    when `validation occurs`
-    (
-      test => validate_pesel(test.input)
-    ),
-    
-    then `input is rejected`
-    (
-      test => expect(test.result.ok).toBe(false)
-    ),
-    
-    and `the reason is control digit mismatch`
-    (
-      test => expect(test.result.error).toStrictEqual({
-        name: "PeselControlDigitMismatch",
-        message: "Calculated control digit does not match one contained in the PESEL"
-      })
-    )
-)
