@@ -11,20 +11,21 @@ function validate_pesel(pesel_candidate: string) {
     return err({
       name: "PeselIsNotString",
       message: "PESEL is not of type `string`"
-    } as const)
+    })
 
   if (pesel_candidate.length !== ALLOWED_LENGTH)
     return err({
       name: "PeselHasInvalidLength",
       message: "PESEL has invalid length"
-    } as const)
+    })
 
   for (const character of pesel_candidate) {
     if (!ALLOWED_CHARACTERS.includes(character))
       return err({
         name: "PeselContainsNonDigitCharacters",
         message: "PESEL contains non-numeric characters"
-      } as const)
+      })
+
   }
 
   const pesel_digits: number[] = pesel_candidate.split("").map(Number)
@@ -41,7 +42,7 @@ function validate_pesel(pesel_candidate: string) {
     return err({
       name: "PeselControlDigitMismatch",
       message: "Calculated control digit does not match one contained in the PESEL"
-    } as const)
+    })
   }
 
   return ok(pesel_candidate)
