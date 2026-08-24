@@ -111,3 +111,6 @@ too many examples
 # Make each "AND" statement narrow the type for next one!!! very smart :)
 
 - [ ] Fix the runtime assertion ! issues
+- [ ] Code execution should happen at test execution and not scenario registration
+- [ ] When should you refactor tests during development?
+- [ ] debug statement that you can put on top of your test scenario instead of logging manually

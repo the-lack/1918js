@@ -9,7 +9,7 @@
   "concurrency": 3,
   "incremental": true,
   "incrementalFile": "cache/stryker-mutation-test-file-cache-for-incremental-testing.json",
-  "mutate": ["source/regon.ts", "source/nip.ts"],
+  "mutate": ["**/!(*.+(s|S)pec|*.+(t|T)est).+(ts)"],
   "coverageAnalysis": "off",
   "disableTypeChecks": true,
   "reporters": ["clear-text"],
