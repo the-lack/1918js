@@ -30,17 +30,24 @@ class Nip {
 
 function validate_nip(nip: string) {
 
-  if (!has_valid_length(nip)) return err(invalid_length(nip));
+  if (!has_valid_length(nip))
+    return err(invalid_length(nip));
 
-  if (!has_only_digits(nip)) return err(invalid_characters());
+  if (!has_only_digits(nip))
+    return err(invalid_characters());
 
-  const control_digits = derive_nip_control_digits(nip);
+  const { calculated_control_digit, received_control_digit } = derive_nip_control_digits(nip);
 
-  if (control_digits.expected === 10) return err(invalid_control_digit());
-  if (control_digits.received !== control_digits.expected) return err(control_digit_mismatch(control_digits));
+  if (calculated_control_digit === 10)
+    return err(invalid_control_digit());
+
+  if (received_control_digit !== calculated_control_digit)
+    return err(control_digit_mismatch({
+      calculated_control_digit,
+      received_control_digit
+    }));
 
   return ok(nip);
-
 }
 
 const NIP_CONTROL_DIGIT_INDEX = 9
@@ -59,18 +66,17 @@ function derive_nip_control_digits(nip: string) {
   const NIP_MODULO = 11
 
   const digits = nip.split("").map(Number);
-  const digits_except_checksum = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
+  const all_digits_except_control_digit = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
 
-  const sum = digits_except_checksum.reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
+  const weighted_sum = all_digits_except_control_digit.reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
 
-  const expected_checksum = sum % NIP_MODULO;
-  const received_checksum = digits[NIP_CONTROL_DIGIT_INDEX]!;
+  const calculated_control_digit = weighted_sum % NIP_MODULO;
+  const received_control_digit = digits[NIP_CONTROL_DIGIT_INDEX]!;
 
   return {
-    expected: expected_checksum,
-    received: received_checksum,
+    calculated_control_digit,
+    received_control_digit
   };
-
 }
 
 function invalid_characters() {
@@ -98,14 +104,17 @@ function invalid_control_digit() {
   } as const
 }
 
-function control_digit_mismatch(control_digit: { expected: number; received: number }) {
+function control_digit_mismatch(control_digit: {
+    calculated_control_digit: number;
+    received_control_digit: number;
+  }) {
   return {
     name: "NipControlDigitMismatch",
     message: "Received NIP control digit does not match calculated control digit",
     meta:
     {
-      expected_control_digit: control_digit.expected,
-      received_control_digit: control_digit.received,
+      expected_control_digit: control_digit.calculated_control_digit,
+      received_control_digit: control_digit.received_control_digit,
       control_digit_index: NIP_CONTROL_DIGIT_INDEX,
     }
   } as const
