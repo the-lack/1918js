@@ -18,8 +18,8 @@ const example_pesel = {
 
   that_contains_invalid_control_number: {
      value: "44051401459",
-     invalid_current_control_digit: "9",
-     what_control_digit_should_be: "8"
+     current_invalid_control_digit: 9,
+     what_control_digit_should_be: 8
   },
 
   thats_blank: fc.nat({ max: 100 }).map(fc_length => " ".repeat(fc_length)),
@@ -52,15 +52,18 @@ for(const validate_pesel of pesel_validation_implementations)  {
           test => expect(test.result.ok).toBe(false)
         ),
 
-        and `the reason provided in the error is invalid length`
+        and `the error provides reason (invalid length), and metadata`
         (
           test => expect(test.result.error).toStrictEqual({
             name: "PeselHasInvalidLength",
-            message: "PESEL has invalid length"
+            message: "PESEL has invalid length",
+            meta: {
+              expected_length: 11,
+              received_length: test.input.length
+            }
           })
-        )  
+        ) 
     )
-
 
     scenario `rejects non-string input`
     (
@@ -80,11 +83,15 @@ for(const validate_pesel of pesel_validation_implementations)  {
           test => expect(test.result.ok).toBe(false)
         ),
 
-        and `the reason is invalid type`
+        and `the error provides reason (invalid type) as well as metadata`
         (
           test => expect(test.result.error).toStrictEqual({
             name: "PeselIsNotString",
-            message: "PESEL is not of type `string`"
+            message: "PESEL is not of type `string`",
+            meta: {
+              expected_type: "string",
+              received_type: typeof test.input
+            }
           })
         )
     )
@@ -160,12 +167,12 @@ for(const validate_pesel of pesel_validation_implementations)  {
     (
         given `pesel with invalid control number`
         (
-          _ => example_pesel.that_contains_invalid_control_number.value
+          _ => example_pesel.that_contains_invalid_control_number
         ),
 
         when `validation occurs`
         (
-          test => validate_pesel(test.input)
+          test => validate_pesel(test.input.value)
         ),
     
         then `input is rejected`
@@ -173,11 +180,16 @@ for(const validate_pesel of pesel_validation_implementations)  {
           test => expect(test.result.ok).toBe(false)
         ),
     
-        and `the reason is control digit mismatch`
+        and `the error provides reason (control digit mismatch) and metadata`
         (
           test => expect(test.result.error).toStrictEqual({
             name: "PeselControlDigitMismatch",
-            message: "Calculated control digit does not match one contained in the PESEL"
+            message: "Calculated control digit does not match one contained in the PESEL",
+            meta: {
+              received_control_digit: test.input.current_invalid_control_digit,
+              expected_control_digit: test.input.what_control_digit_should_be,
+              control_digit_position: 11,
+            }
           })
         )
     )
