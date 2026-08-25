@@ -8,6 +8,7 @@
         "@stryker-mutator/typescript-checker": "^10.0.0",
       },
       "devDependencies": {
+        "1918js": "^0.0.3",
         "@fast-check/vitest": "^0.4.1",
         "@stryker-mutator/core": "^10.0.0",
         "@stryker-mutator/vitest-runner": "^9.6.1",
@@ -24,6 +25,8 @@
     },
   },
   "packages": {
+    "1918js": ["1918js@0.0.3", "", {}, "sha512-3ChheMWl5yOTeYsr49eksd43VdZIqj36LULk/DR5M9pO62Mo3STbx1Z3rEpMUR1DNjB2Yg2LHQCfyUOWIJ+Sow=="],
+
     "@babel/code-frame": ["@babel/code-frame@8.0.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^8.0.0", "js-tokens": "^10.0.0" } }, "sha512-dYYg153EyN2Ekbqw2zAsbd6/JR+9N2SEoC7YV2GyyqMM7x9bLDTjBD6XBhSMLH0wtIVyJj03jWNriQhaN+eoCw=="],
 
     "@babel/compat-data": ["@babel/compat-data@8.0.0", "", {}, "sha512-DOjnob/cXOUgDOozCDeq/aK2p5y8dUIVdf6tNhEV1HQRd6I8aQ4f4fbtHRVEvb6lP3BGomrKHiS8ICAASSVQSw=="],
