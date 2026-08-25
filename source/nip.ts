@@ -10,10 +10,11 @@ class Nip {
   }
 
   static try_parse(nip_candidate: string) {
-    const result = validate_nip(nip_candidate)
+    const result = validate_nip(nip_candidate as any)
 
     if (!result.ok) return result;
-    else return ok(new Nip(result.value))
+
+    return ok(new Nip(result.value))
   }
 
   as_string(): string {
@@ -21,22 +22,21 @@ class Nip {
   }
 
   equals(other: unknown): other is Nip {
-    if (this === other) return true;
     if (!(other instanceof Nip)) return false;
 
     return this.#value === other.#value;
   }
 }
 
-function validate_nip(nip: string) {
+function validate_nip(nip_candidate: string) {
 
-  if (!has_valid_length(nip))
-    return err(invalid_length(nip));
+  if (!has_valid_length(nip_candidate))
+    return err(invalid_length(nip_candidate));
 
-  if (!has_only_digits(nip))
+  if (!has_only_digits(nip_candidate))
     return err(invalid_characters());
 
-  const { calculated_control_digit, received_control_digit } = derive_nip_control_digits(nip);
+  const { calculated_control_digit, received_control_digit } = derive_nip_control_digits(nip_candidate);
 
   if (calculated_control_digit === 10)
     return err(invalid_control_digit());
@@ -47,7 +47,7 @@ function validate_nip(nip: string) {
       received_control_digit
     }));
 
-  return ok(nip);
+  return ok(nip_candidate);
 }
 
 const NIP_CONTROL_DIGIT_INDEX = 9
