@@ -1,5 +1,5 @@
 import fc from "fast-check";
-import { describe, it } from "vitest";
+import { describe, it } from "bun:test";
 
 export function scenario(scenario_title: string) {
   return {
