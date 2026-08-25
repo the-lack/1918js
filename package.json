@@ -26,8 +26,5 @@
     "works": "git clean -f -d -X && bun install --frozen-lockfile && tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel --coverage",
     "test:mutation": "stryker run"
   },
-  "type": "module",
-  "dependencies": {
-    "@stryker-mutator/typescript-checker": "^10.0.0"
-  }
+  "type": "module"
 }
