@@ -184,6 +184,82 @@ for(const validate_pesel of pesel_validation_implementations)  {
 }
 
 // ──── Test suite for value object implementation ────
+
+scenario `valid pesel comparison`
+(
+    given `valid pesel value`
+    (
+      _ => example.thats_valid1
+    ),
+
+    when `it's used for initializing 2 independent VOs`
+    (
+      test => ({
+                pesel1: Pesel.try_parse(test.input),
+                pesel2: Pesel.try_parse(test.input)
+              })
+    ),
+
+    then `both VOs are valid`
+    (
+      test => {
+                expect(test.result.pesel1.ok).toBe(true)
+                expect(test.result.pesel2.ok).toBe(true)
+              }
+    ),
+
+    and `both VOs contain same value`
+    (
+      test => expect(test.result.pesel1.value?.as_string()).
+              toEqual(test.result.pesel2.value?.as_string())
+    ),
+
+    and `their 'equals' comparison says they contain same value`
+    (
+      test => expect(test.result.pesel1.value?.equals(test.result.pesel2.value)).
+              toBe(true)
+    )
+    
+)
+
+scenario `valid pesel comparison`
+(
+    given `2 different valid pesel values`
+    (
+      _ => ({ value1: example.thats_valid1, value2: example.thats_valid2 })
+    ),
+
+    when `they are used for initializing 2 independent VOs`
+    (
+      test => ({
+                pesel1: Pesel.try_parse(test.input.value1),
+                pesel2: Pesel.try_parse(test.input.value2)
+              })
+    ),
+
+    then `both VOs are valid`
+    (
+      test => {
+                expect(test.result.pesel1.ok).toBe(true)
+                expect(test.result.pesel2.ok).toBe(true)
+              }
+    ),
+
+    and `both VOs contain different value`
+    (
+      test => expect(test.result.pesel1.value?.as_string()).
+              not.
+              toEqual(test.result.pesel2.value?.as_string())
+    ),
+
+    and `their 'equals' comparison says they do not contain same value`
+    (
+      test => expect(test.result.pesel1.value?.equals(test.result.pesel2.value))
+              .not.
+              toBe(true)
+    )
+)
+
 scenario `accepts valid pesel`
 (
     given `valid pesel`.
@@ -241,6 +317,26 @@ scenario `accepts valid pesel with control digit equal zero`
     )
 )
 
+scenario `pesel is not equal to a non-pesel`
+(
+  given `a valid pesel`
+  (
+    _ => example.thats_valid1
+  ),
+
+  when `it's compared with a string`
+  (
+    test => ({
+      pesel: Pesel.try_parse(test.input).value!,
+      other: test.input
+    })
+  ),
+
+  then `they are not equal`
+  (
+    test => expect(test.result.pesel.equals(test.result.other)).toBe(false)
+  )
+)
 
 // ──── Test suite for functional implementation ────
 scenario `accepts valid pesel`

@@ -22,8 +22,8 @@ class Pesel {
   }
 
   equals(other: unknown): other is Pesel {
-    return other instanceof Pesel &&
-           this.#value === other.#value
+    if (!(other instanceof Pesel)) return false;
+    return this.#value === other.#value;
   }
 }
 
