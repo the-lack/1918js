@@ -1,10 +1,10 @@
 import { expect } from "bun:test";
 import { $ } from "./lib/bdd-utility"
-import { validate_regon } from "./regon";
+import { validate_regon, Regon } from "./regon";
 import { get_fc_numeric_string } from "./lib/fc-utilities";
 import fc from "fast-check";
 
-const { scenario, given, when, then } = $;
+const { scenario, given, when, then, and } = $;
 
 const valid_regon_9_length = "630303023"
 const valid_regon_14_length = "12345678512347"
@@ -22,104 +22,215 @@ const invalid_regon14_where_control_digit_should_be_0_yet_is_not = "123456785423
 const zeroed_out_regon_9  = "0".repeat(9)
 const zeroed_out_regon_14 = "0".repeat(14)
 
-scenario `rejecting for invalid length`
-  (
-    given `input of length $length`
-      .such_as
-      (
-        _ => [0,
-          9 - 1,
-          9 + 1,
-          14 - 1,
-          14 + 1]
-          .map(length => ({ length, value: " ".repeat(length) }))
-      ),
+const regon_validation_implementations = [Regon.try_parse, validate_regon]
 
-    when `input is validated`
-      (
-        ({ input }) => validate_regon(input.value)
-      ),
+for(const validate_regon of regon_validation_implementations) {
+  scenario `rejecting for invalid length`
+    (
+      given `input of length $length`
+        .such_as
+        (
+          _ => [0,
+            9 - 1,
+            9 + 1,
+            14 - 1,
+            14 + 1]
+            .map(length => ({ length, value: " ".repeat(length) }))
+        ),
 
-    then `input is rejected for invalid length`
-      (
-        ({ result, input }) => {
-          expect(result)
-            .toStrictEqual(invalid_length_error(input.value))
-        }
-      )
-  )
+      when `input is validated`
+        (
+          ({ input }) => validate_regon(input.value)
+        ),
 
-scenario `not rejecting input for invalid length`
-  (
-    given `input of length $length`
-      .such_as
-      (
-        _ => [9, 14].map(length => ({ length, value: " ".repeat(length) }))
-      ),
+      then `input is rejected for invalid length`
+        (
+          ({ result, input }) => {
+            expect(result)
+              .toStrictEqual(invalid_length_error(input.value))
+          }
+        )
+    )
 
-    when `input is validated`
-      (
-        ({ input })=> validate_regon(input.value)
-      ),
+  scenario `not rejecting input for invalid length`
+    (
+      given `input of length $length`
+        .such_as
+        (
+          _ => [9, 14].map(length => ({ length, value: " ".repeat(length) }))
+        ),
 
-    then `input is not rejected for invalid length`
-      (
-        ({ result, input }) => expect(result).not.toEqual(invalid_length_error(input.value))
-      )
-  )
+      when `input is validated`
+        (
+          ({ input })=> validate_regon(input.value)
+        ),
 
-scenario `rejecting for non-digit characters`
-  (
-    given `non-numeric input`
-      .such_as
-      (
-        _ => [
-              ...set_of_regons_with_non_digit_tampered(valid_regon_9_length),
-              ...set_of_regons_with_non_digit_tampered(valid_regon_14_length)
-             ]
-      ),
+      then `input is not rejected for invalid length`
+        (
+          ({ result, input }) => expect(result).not.toEqual(invalid_length_error(input.value))
+        )
+    )
 
-    when `input validated`
-      (
-        ({ input }) => validate_regon(input)
-      ),
+  scenario `rejecting for non-digit characters`
+    (
+      given `non-numeric input`
+        .such_as
+        (
+          _ => [
+                ...set_of_regons_with_non_digit_tampered(valid_regon_9_length),
+                ...set_of_regons_with_non_digit_tampered(valid_regon_14_length)
+               ]
+        ),
 
-    then `input is rejected for having non-digit characters`
-      (
-        ({ result }) => {
-          expect(result).toStrictEqual({
-            ok: false,
-            error: invalid_characters_error()
-          })
-        }
-      )
-  )
+      when `input validated`
+        (
+          ({ input }) => validate_regon(input)
+        ),
 
-scenario `not rejecting when containing only digits`
-  (
-    given `digit-only input`
-      .from_fc
-      (
-        _ => fc.oneof(
-          get_fc_numeric_string({ min_length: 9, max_length: 9 }),
-          get_fc_numeric_string({ min_length: 14, max_length: 14 }))
-      ),
+      then `input is rejected for having non-digit characters`
+        (
+          ({ result }) => {
+            expect(result).toStrictEqual({
+              ok: false,
+              error: invalid_characters_error()
+            })
+          }
+        )
+    )
 
-    when `input validated`
-      (
-        ({ input }) => validate_regon(input)
-      ),
+  scenario `not rejecting when containing only digits`
+    (
+      given `digit-only input`
+        .from_fc
+        (
+          _ => fc.oneof(
+            get_fc_numeric_string({ min_length: 9, max_length: 9 }),
+            get_fc_numeric_string({ min_length: 14, max_length: 14 }))
+        ),
 
-    then `input is not rejected for having non-digit characters`
-      (
-        ({ result }) => {
-          expect(result).not.toEqual({
-            ok: false,
-            error: invalid_characters_error()
-          })
-        }
-      )
-  )
+      when `input validated`
+        (
+          ({ input }) => validate_regon(input)
+        ),
+
+      then `input is not rejected for having non-digit characters`
+        (
+          ({ result }) => {
+            expect(result).not.toEqual({
+              ok: false,
+              error: invalid_characters_error()
+            })
+          }
+        )
+    )
+
+  scenario `rejecting regon with invalid control digit`
+    (
+      given `regon with invalid control digit: %s`
+        .such_as
+        (
+          _ => [invalid_regon9_with_wrong_control_digit, invalid_regon14_with_wrong_second_control_digit, invalid_regon14_with_wrong_first_control_digit, invalid_regon14_where_control_digit_should_be_0_yet_is_not, invalid_regon9_where_control_digit_should_be_0_yet_is_not]
+        ),
+
+      when `regon is validated`
+        (
+          ({ input }) => validate_regon(input)
+        ),
+
+      then `regon is rejected for invalid control digit`
+        (
+          ({ result }) =>
+            expect(result).toMatchObject({
+              ok: false,
+              error: {
+                name: invalid_control_digit_error().name,
+                message: invalid_control_digit_error().message
+              }
+            })
+        )
+    )
+
+  scenario `rejecting regon containing only 0s`
+    (
+      given `regon full of zeros`.
+        such_as
+        (
+          _ => [zeroed_out_regon_9, zeroed_out_regon_14]
+        ),
+
+      when `regon is validated`
+        (
+          ({ input }) => validate_regon(input)
+        ),
+
+      then `regon is rejected for containing only 0s`
+        (
+          ({ result }) => {
+            expect(result.ok).toBe(false)
+            expect(result.error).toEqual(contains_only_zeros_error())
+          }
+        )
+    )
+
+  scenario `rejecting regon with any of the digits tampered`
+    (
+      given `tampered regon: %s`
+        .such_as
+        (
+          _ => [
+                ...set_of_regons_with_one_digit_tampered(valid_regon_9_length),
+                ...set_of_regons_with_one_digit_tampered(valid_regon_14_length),
+              ]
+        ),
+
+      when `tampered regon is validated`
+        (
+          ({ input }) => validate_regon(input)
+        ),
+
+      then `regon is rejected for having invalid control digit`
+        (
+          ({ result }) =>
+            expect(result).toMatchObject({
+              ok: false,
+              error: {
+                name: invalid_control_digit_error().name,
+                message: invalid_control_digit_error().message
+              }
+            })
+        )
+    )
+
+  scenario `valid regon rejected after tampering control digit`
+    (
+      given `regon with tampered control digit $tampered_regon`
+        .such_as
+        (
+          _ => [
+                ...set_of_regons_with_control_digit_tampered(valid_regon_9_length, "first_control_digit"),
+                ...set_of_regons_with_control_digit_tampered(valid_regon_14_length, "first_control_digit"),
+                ...set_of_regons_with_control_digit_tampered(valid_regon_14_length, "second_control_digit") 
+               ]
+        ),
+
+      when `tampered regon validated`
+        (
+          ({ input }) => validate_regon(input.tampered_regon)
+        ),
+
+      then `regon is rejected for invalid control digit`
+        (
+          ({ result, input }) => {
+            expect(result.ok).toBe(false)
+            expect(result.error).toStrictEqual(invalid_control_digit_error({
+              expected_control_digit: input.original_control_digit,
+              received_control_digit: input.tampered_control_digit,
+              control_digit_index: input.tampered_digit_index,
+            }))
+          }
+        )
+    )
+}
 
 scenario `accepting valid regon`
   (
@@ -143,114 +254,137 @@ scenario `accepting valid regon`
       )
   )
 
+// vo validation
+scenario `valid regon comparison`
+(
+    given `valid regon value`
+    .such_as
+    (
+      _ => [valid_regon_9_length, valid_regon_14_length]
+    ),
 
-scenario `rejecting regon with invalid control digit`
+    when `it's used for initializing 2 independent VOs`
+    (
+      test => ({
+                regon1: Regon.try_parse(test.input),
+                regon2: Regon.try_parse(test.input)
+              })
+    ),
+
+    then `both VOs are valid`
+    (
+      test => {
+                expect(test.result.regon1.ok).toBe(true)
+                expect(test.result.regon2.ok).toBe(true)
+              }
+    ),
+
+    and `both VOs contain same value`
+    (
+      test => expect(test.result.regon1.value?.as_string()).
+              toEqual(test.result.regon2.value?.as_string())
+    ),
+
+    and `their 'equals' comparison says they contain same value`
+    (
+      test => expect(test.result.regon1.value?.equals(test.result.regon2.value)).
+              toBe(true)
+    )
+    
+)
+
+scenario `valid regon comparison`
+(
+    given `2 different valid regon values`.
+    such_as
+    (
+      _ => [
+        ({ value1: valid_regon_9_length, value2: valid_regon9_where_control_digit_is_0 }),
+        ({ value1: valid_regon_14_length, value2: valid_regon14_where_control_digit_is_0 })
+      ]
+    ),
+
+    when `they are used for initializing 2 independent VOs`
+    (
+      test => ({
+                regon1: Regon.try_parse(test.input.value1),
+                regon2: Regon.try_parse(test.input.value2)
+              })
+    ),
+
+    then `both VOs are valid`
+    (
+      test => {
+                expect(test.result.regon1.ok).toBe(true)
+                expect(test.result.regon2.ok).toBe(true)
+              }
+    ),
+
+    and `both VOs contain different value`
+    (
+      test => expect(test.result.regon1.value?.as_string()).
+              not.
+              toEqual(test.result.regon2.value?.as_string())
+    ),
+
+    and `their 'equals' comparison says they do not contain same value`
+    (
+      test => expect(test.result.regon1.value?.equals(test.result.regon2.value))
+              .not.
+              toBe(true)
+    )
+)
+
+scenario `accepts valid regon`
+(
+    given `valid regon`.
+    such_as
+    (
+      _ => [valid_regon_9_length]
+    ),
+
+    when `valid regon is validated`
+    (
+      test => Regon.try_parse(test.input)
+    ),
+
+    then `input is accepted`
+    (
+      test => expect(test.result.ok).toBe(true)
+    ),
+
+    and `return value object`
+    (
+      test => expect(test.result.value).toBeInstanceOf(Regon)
+    ),
+
+    and `value object value contains original input`
+    (
+      test => expect(test.input as string).toEqual(test.result?.value!.as_string())
+    )
+)
+
+
+scenario `regon is not equal to a non-regon`
+(
+  given `a valid regon`
   (
-    given `regon with invalid control digit: %s`
-      .such_as
-      (
-        _ => [invalid_regon9_with_wrong_control_digit, invalid_regon14_with_wrong_second_control_digit, invalid_regon14_with_wrong_first_control_digit, invalid_regon14_where_control_digit_should_be_0_yet_is_not, invalid_regon9_where_control_digit_should_be_0_yet_is_not]
-      ),
+    _ => valid_regon_9_length
+  ),
 
-    when `regon is validated`
-      (
-        ({ input }) => validate_regon(input)
-      ),
-
-    then `regon is rejected for invalid control digit`
-      (
-        ({ result }) =>
-          expect(result).toMatchObject({
-            ok: false,
-            error: {
-              name: invalid_control_digit_error().name,
-              message: invalid_control_digit_error().message
-            }
-          })
-      )
-  )
-
-scenario `rejecting regon containing only 0s`
+  when `it's compared with a string`
   (
-    given `regon full of zeros`.
-      such_as
-      (
-        _ => [zeroed_out_regon_9, zeroed_out_regon_14]
-      ),
+    test => ({
+      regon: Regon.try_parse(test.input).value!,
+      other: test.input
+    })
+  ),
 
-    when `regon is validated`
-      (
-        ({ input }) => validate_regon(input)
-      ),
-
-    then `regon is rejected for containing only 0s`
-      (
-        ({ result }) => {
-          expect(result.ok).toBe(false)
-          expect(result.error).toEqual(contains_only_zeros_error())
-        }
-      )
-  )
-
-scenario `rejecting regon with any of the digits tampered`
+  then `they are not equal`
   (
-    given `tampered regon: %s`
-      .such_as
-      (
-        _ => [
-              ...set_of_regons_with_one_digit_tampered(valid_regon_9_length),
-              ...set_of_regons_with_one_digit_tampered(valid_regon_14_length),
-            ]
-      ),
-
-    when `tampered regon is validated`
-      (
-        ({ input }) => validate_regon(input)
-      ),
-
-    then `regon is rejected for having invalid control digit`
-      (
-        ({ result }) =>
-          expect(result).toMatchObject({
-            ok: false,
-            error: {
-              name: invalid_control_digit_error().name,
-              message: invalid_control_digit_error().message
-            }
-          })
-      )
+    test => expect(test.result.regon.equals(test.result.other)).toBe(false)
   )
-
-scenario `valid regon rejected after tampering control digit`
-  (
-    given `regon with tampered control digit $tampered_regon`
-      .such_as
-      (
-        _ => [
-              ...set_of_regons_with_control_digit_tampered(valid_regon_9_length, "first_control_digit"),
-              ...set_of_regons_with_control_digit_tampered(valid_regon_14_length, "first_control_digit"),
-              ...set_of_regons_with_control_digit_tampered(valid_regon_14_length, "second_control_digit") 
-             ]
-      ),
-
-    when `tampered regon validated`
-      (
-        ({ input }) => validate_regon(input.tampered_regon)
-      ),
-
-    then `regon is rejected for invalid control digit`
-      (
-        ({ result, input }) => {
-          expect(result.ok).toBe(false)
-          expect(result.error).toStrictEqual(invalid_control_digit_error({
-            expected_control_digit: input.original_control_digit,
-            received_control_digit: input.tampered_control_digit,
-            control_digit_index: input.tampered_digit_index,
-          }))
-        }
-      )
-  )
-
+)
   
 function set_of_regons_with_non_digit_tampered(regon: string) {
   const non_digits = ["A", "X", "-", " "];

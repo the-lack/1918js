@@ -21,7 +21,6 @@ class Regon {
   }
 
   equals(other: unknown): other is Regon {
-    if (this === other) return true;
     if (!(other instanceof Regon)) return false;
 
     return this.#value === other.#value;
