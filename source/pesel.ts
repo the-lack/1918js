@@ -10,7 +10,7 @@ class Pesel {
   }
 
   static try_parse(candidate: unknown) {
-    const result = validate_pesel(candidate)
+    const result = validate_pesel(candidate as any)
 
     if (!result.ok) return result
 
@@ -31,7 +31,7 @@ const ALLOWED_CHARACTERS: readonly string[] = ["0", "1", "2", "3", "4", "5", "6"
 const ALLOWED_LENGTH = 11
 const PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1] as const;
 
-function validate_pesel(pesel_candidate: any) {
+function validate_pesel(pesel_candidate: string) {
   if (typeof pesel_candidate !== "string")
     return err({
       name: "PeselIsNotString",
