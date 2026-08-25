@@ -1,6 +1,6 @@
 import { expect, describe as suite } from "bun:test";
 import fc from 'fast-check';
-import { type NipErrorName, validate_nip } from "./nip";
+import { validate_nip } from "./nip";
 import { scenario } from "./lib/test-scenario-utility";
 import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities";
 
@@ -57,7 +57,7 @@ suite("parse_nip", () => {
     .given("number of length = 10", () => fc.string({ minLength: 10, maxLength: 10 }))
     .when("number is parsed", validate_nip)
     .then("number is not rejected for invalid length", (result) => {
-      expect(result?.error?.name).not.toBe<NipErrorName>("NipInvalidLength")
+      expect(result?.error?.name).not.toBe("NipInvalidLength")
     })
 
   scenario("non-numeric input with proper length")

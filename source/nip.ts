@@ -1,6 +1,6 @@
-import { err, ok, type Result } from "./lib/result"
+import { err, ok } from "./lib/result"
 
-export { validate_nip, Nip, type NipError, type NipErrorName };
+export { validate_nip, Nip };
 
 class Nip {
   #value: string;
@@ -9,7 +9,7 @@ class Nip {
     this.#value = nip;
   }
 
-  static try_parse(nip_candidate: string): Result<Nip, NipError> {
+  static try_parse(nip_candidate: string) {
     const result = validate_nip(nip_candidate)
 
     if (!result.ok) return result;
@@ -28,9 +28,10 @@ class Nip {
   }
 }
 
-function validate_nip(nip: string): Result<string, NipError> {
+function validate_nip(nip: string) {
 
   if (!has_valid_length(nip)) return err(invalid_length(nip));
+
   if (!has_only_digits(nip)) return err(invalid_characters());
 
   const control_digits = derive_nip_control_digits(nip);
@@ -72,14 +73,14 @@ function derive_nip_control_digits(nip: string) {
 
 }
 
-function invalid_characters(): Readonly<NipError> {
+function invalid_characters() {
   return {
     name: "NipContainsNonDigits",
     message: "NIP contains characters that are not digits"
-  }
+  } as const
 }
 
-function invalid_length(nip: string): Readonly<NipError> {
+function invalid_length(nip: string) {
   return {
     name: "NipInvalidLength",
     message: "NIP has invalid length",
@@ -87,17 +88,17 @@ function invalid_length(nip: string): Readonly<NipError> {
       expected_length: NIP_EXPECTED_LENGTH,
       received_length: nip.length
     }
-  }
+  } as const
 }
 
-function invalid_control_digit(): Readonly<NipError> {
+function invalid_control_digit() {
   return {
     name: "NipCalculatedControlDigitCannotBeTen",
     message: "Control digit calculated for NIP cannot equal 10"
-  }
+  } as const
 }
 
-function control_digit_mismatch(control_digit: { expected: number; received: number }): Readonly<NipError> {
+function control_digit_mismatch(control_digit: { expected: number; received: number }) {
   return {
     name: "NipControlDigitMismatch",
     message: "Received NIP control digit does not match calculated control digit",
@@ -107,38 +108,5 @@ function control_digit_mismatch(control_digit: { expected: number; received: num
       received_control_digit: control_digit.received,
       control_digit_index: NIP_CONTROL_DIGIT_INDEX,
     }
-  }
+  } as const
 }
-
-type NipError =
-  |
-  {
-    name: "NipInvalidLength"
-    message: "NIP has invalid length"
-    meta: {
-      expected_length: typeof NIP_EXPECTED_LENGTH
-      received_length: number
-    };
-  }
-  |
-  {
-    name: "NipContainsNonDigits"
-    message: "NIP contains characters that are not digits"
-  }
-  |
-  {
-    name: "NipCalculatedControlDigitCannotBeTen"
-    message: "Control digit calculated for NIP cannot equal 10"
-  }
-  |
-  {
-    name: "NipControlDigitMismatch",
-    message: "Received NIP control digit does not match calculated control digit"
-    meta: {
-      expected_control_digit: number
-      received_control_digit: number
-      control_digit_index: typeof NIP_CONTROL_DIGIT_INDEX
-    };
-  }
-
-type NipErrorName = NipError["name"];
