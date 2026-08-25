@@ -7,7 +7,7 @@ import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from
 const { scenario, given, when, then, and } = $
 
 // ── Test data ─────────────────────────────────────────────────────
-const example = {
+const example_pesel = {
   thats_valid1: "44051401458",
   thats_valid2: "98112868513",
   thats_valid3: "87121158173",
@@ -39,7 +39,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
     (
         given `empty input`
         (
-          _ => example.thats_empty
+          _ => example_pesel.thats_empty
         ),
 
         when `empty input validated`
@@ -67,7 +67,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
         given `non-string input`.
         from_fc
         (
-          _ => example.thats_not_a_string
+          _ => example_pesel.thats_not_a_string
         ),
 
         when `non-string input is rejected`
@@ -94,7 +94,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
         given `blank input`.
         from_fc
         (
-          _ => example.thats_blank
+          _ => example_pesel.thats_blank
         ),
 
         when `blank input is validated`
@@ -114,7 +114,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
         given `non-numeric input`.
         from_fc
         (
-          _ => example.that_contains_at_least_one_non_digit
+          _ => example_pesel.that_contains_at_least_one_non_digit
         ),
 
         when `non-numeric input is validated`
@@ -142,7 +142,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
         given `numeric input but of invalid length`.
         from_fc
         (
-          _ => example.thats_has_invalid_length
+          _ => example_pesel.thats_has_invalid_length
         ),
 
         when `validation occurs`
@@ -160,7 +160,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
     (
         given `pesel with invalid control number`
         (
-          _ => example.that_contains_invalid_control_number.value
+          _ => example_pesel.that_contains_invalid_control_number.value
         ),
 
         when `validation occurs`
@@ -189,7 +189,7 @@ scenario `valid pesel comparison`
 (
     given `valid pesel value`
     (
-      _ => example.thats_valid1
+      _ => example_pesel.thats_valid1
     ),
 
     when `it's used for initializing 2 independent VOs`
@@ -226,7 +226,7 @@ scenario `valid pesel comparison`
 (
     given `2 different valid pesel values`
     (
-      _ => ({ value1: example.thats_valid1, value2: example.thats_valid2 })
+      _ => ({ value1: example_pesel.thats_valid1, value2: example_pesel.thats_valid2 })
     ),
 
     when `they are used for initializing 2 independent VOs`
@@ -265,7 +265,7 @@ scenario `accepts valid pesel`
     given `valid pesel`.
     such_as
     (
-      _ => [example.thats_valid1, example.thats_valid2, example.thats_valid3]
+      _ => [example_pesel.thats_valid1, example_pesel.thats_valid2, example_pesel.thats_valid3]
     ),
 
     when `valid pesel is validated`
@@ -293,7 +293,7 @@ scenario `accepts valid pesel with control digit equal zero`
 (
     given `valid pesel`
     (
-      _ => example.thats_valid_and_contains_control_digit_equal_zero
+      _ => example_pesel.thats_valid_and_contains_control_digit_equal_zero
     ),
 
     when `valid pesel is validated`
@@ -321,7 +321,7 @@ scenario `pesel is not equal to a non-pesel`
 (
   given `a valid pesel`
   (
-    _ => example.thats_valid1
+    _ => example_pesel.thats_valid1
   ),
 
   when `it's compared with a string`
@@ -344,7 +344,7 @@ scenario `accepts valid pesel`
     given `valid pesel`.
     such_as
     (
-      _ => [example.thats_valid1, example.thats_valid2, example.thats_valid3]
+      _ => [example_pesel.thats_valid1, example_pesel.thats_valid2, example_pesel.thats_valid3]
     ),
 
     when `valid pesel is validated`
@@ -367,7 +367,7 @@ scenario `accepts valid pesel with control digit equal zero`
 (
     given `valid pesel`
     (
-      _ => example.thats_valid_and_contains_control_digit_equal_zero
+      _ => example_pesel.thats_valid_and_contains_control_digit_equal_zero
     ),
 
     when `valid pesel is validated`
