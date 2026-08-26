@@ -3,22 +3,24 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
 
 # Todosy
 
-- [ ] PESEL Validation
-  - [ ] TDD/BDD Tests
-  - [ ] Functional implementation
-  - [ ] Value-object implementation
+- [X] PESEL Validation
+  - [X] TDD/BDD Tests
+  - [X] Functional implementation
+  - [X] Value-object implementation
 
-- [ ] Bump up unit test coverage to 100%
-    - [ ] Test NIP VO
-    - [ ] Test REGON VO
+- [X] Bump up unit test coverage to 100%
+    - [X] Test NIP VO
+    - [X] Test REGON VO
 
-- [ ] Bump up mutation test coverage to 100%
+- [X] Bump up mutation test coverage to 100%
 
 - [ ] Clean up implementation of REGON to make it copy-pasteable
 
 - [ ] Make source code copy-pasteable. Shadcn type beat implementation
 
 - [ ] Add "Regain independence from corrupted data in your codebase" slogan
+
+- [ ] Make API camelCased because JavaScript conventions and yada yada
 
 - [ ] ALL-ZERO edge case error
 
@@ -114,3 +116,4 @@ too many examples
 - [ ] Code execution should happen at test execution and not scenario registration
 - [ ] When should you refactor tests during development?
 - [ ] debug statement that you can put on top of your test scenario instead of logging manually
+- [ ] vitest leftover in nip tests
