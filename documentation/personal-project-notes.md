@@ -15,35 +15,38 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
 - [X] Bump up mutation test coverage to 100%
 
 - [ ] Clean up implementation of REGON to make it copy-pasteable
+- [ ] Clean up implementation of PESEL to make it copy-pasteable
 
 - [ ] Make source code copy-pasteable. Shadcn type beat implementation
+- [ ] Create documentation page. Document:
+        - [ ] Code samples
+        - [ ] Possible errors for each validator
+        - [ ] VOs and how to use them correctly 
+        - [ ] Install steps
+        - [ ] Example with a Zod Schema + catch all implementation
+        - [ ] Throwing vs result
 
-- [ ] Add "Regain independence from corrupted data in your codebase" slogan
+- [ ] Add all-zero edge case check for:
+    - [ ] PESEL 
+    - [ ] NIP
+    - [ ] REGON
 
 - [ ] Make API camelCased because JavaScript conventions and yada yada
 
-- [ ] ALL-ZERO edge case error
-
 # Docs
-- [ ] Add license
-- [ ] Fix readme examples to compile, make them cleaner/ shorter
-- [ ] Add author
-- [ ] Add package description
-- [ ] Add git repository link
-- [ ] Add entrypage/start page link
-- [ ] Zod adapter example and how all errors can be handled uniformly
-- [ ] Explanation why VO is useful and why no branded type :)
+- [x] Add license
+- [X] Add author
+- [X] Add package description
+- [X] Add git repository link
+- [X] Add entrypage/start page link
 
 # Improvemenets (optional)
 - [ ] Add unwrap to the Result
 - [ ] Extract testing utils to beautestiful
-- [ ] Add "AND" syntax to BDD
-- [ ] Create compilation plugin that changes snake_case to camelCase
+- [X] Add "AND" syntax to BDD
 - [ ] How can we stop having 20/30 fucking file in the root directory.
       Single config.ts that contains a defineConfigObject that serializes the files to:
        vite.config.ts, vitest.config.ts all type safe and good and chill :)
-
-- [ ] Create custom VITE reporter that formats shit like a human would read
 
 # Maybe?
   input => result =>
