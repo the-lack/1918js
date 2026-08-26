@@ -252,7 +252,7 @@ suite("parse_nip", () => {
 
     new_scenario `nip is not equal to a non-nip`
     (
-      given `a valid pesel`
+      given `a valid nip`
       (
         _ => nips.valid_examples()[0]
       ),
@@ -260,14 +260,14 @@ suite("parse_nip", () => {
       when `it's compared with a string`
       (
         test => ({
-          pesel: Nip.try_parse(test.input).value!,
+          nip: Nip.try_parse(test.input).value!,
           other: test.input
         })
       ),
 
       then `they are not equal`
       (
-        test => expect(test.result.pesel.equals(test.result.other)).toBe(false)
+        test => expect(test.result.nip.equals(test.result.other)).toBe(false)
       )
     )
 
