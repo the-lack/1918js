@@ -31,7 +31,7 @@ suite("parse_nip", () => {
 
         when `validated`
           (
-            test => validate_nip(test.input as undefined)
+            test => validate_nip(test.input)
           ),
 
         then `nip is rejected for being non-string`
