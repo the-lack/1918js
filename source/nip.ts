@@ -5,12 +5,12 @@ export { validate_nip, Nip };
 class Nip {
   #value: string;
 
-  private constructor(nip: string) {
-    this.#value = nip;
+  private constructor(nip_candidate: string) {
+    this.#value = nip_candidate;
   }
 
-  static try_parse(nip_candidate: string) {
-    const result = validate_nip(nip_candidate as any)
+  static try_parse(nip_candidate: unknown) {
+    const result = validate_nip(nip_candidate)
 
     if (!result.ok) return result;
 
@@ -21,14 +21,24 @@ class Nip {
     return this.#value;
   }
 
-  equals(other: unknown): other is Nip {
+  equals(other: unknown) {
     if (!(other instanceof Nip)) return false;
 
     return this.#value === other.#value;
   }
 }
 
-function validate_nip(nip_candidate: string) {
+const NIP_MODULO = 11
+const NIP_CONTROL_DIGIT_INDEX = 9
+const NIP_ALLOWED_LENGTH = 10
+const NIP_WEIGHTS: readonly number[] = [6, 5, 7, 2, 3, 4, 5, 6, 7]
+const NIP_ALLOWED_CHARACTERS: readonly string[] = 
+	["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+function validate_nip(nip_candidate: unknown) {
+
+  if(typeof nip_candidate !== "string")
+    return err(invalid_type())
 
   if (!has_valid_length(nip_candidate))
     return err(invalid_length(nip_candidate));
@@ -36,7 +46,8 @@ function validate_nip(nip_candidate: string) {
   if (!has_only_digits(nip_candidate))
     return err(invalid_characters());
 
-  const { calculated_control_digit, received_control_digit } = derive_nip_control_digits(nip_candidate);
+  const { calculated_control_digit, received_control_digit } = 
+	  derive_nip_control_digits(nip_candidate);
 
   if (calculated_control_digit === 10)
     return err(invalid_control_digit());
@@ -50,25 +61,26 @@ function validate_nip(nip_candidate: string) {
   return ok(nip_candidate);
 }
 
-const NIP_CONTROL_DIGIT_INDEX = 9
-const NIP_EXPECTED_LENGTH = 10
 
-function has_only_digits(nip: string) {
-  return /^\d+$/.test(nip);
+function has_only_digits(nip_candidate: string) {
+  for (const character of nip_candidate) {
+    if (!NIP_ALLOWED_CHARACTERS.includes(character))
+      return false;
+  }
+
+  return true
 }
 
-function has_valid_length(nip: string) {
-  return nip.length === NIP_EXPECTED_LENGTH
+function has_valid_length(nip_candidate: string) {
+  return nip_candidate.length === NIP_ALLOWED_LENGTH
 }
 
-function derive_nip_control_digits(nip: string) {
-  const NIP_WEIGHTS = [6, 5, 7, 2, 3, 4, 5, 6, 7]
-  const NIP_MODULO = 11
-
-  const digits = nip.split("").map(Number);
+function derive_nip_control_digits(nip_candidate: string) {
+  const digits = nip_candidate.split("").map(Number);
   const all_digits_except_control_digit = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
 
-  const weighted_sum = all_digits_except_control_digit.reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
+  const weighted_sum = all_digits_except_control_digit
+  	.reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
 
   const calculated_control_digit = weighted_sum % NIP_MODULO;
   const received_control_digit = digits[NIP_CONTROL_DIGIT_INDEX]!;
@@ -79,6 +91,14 @@ function derive_nip_control_digits(nip: string) {
   };
 }
 
+function invalid_type() {
+  return {
+    name: "NipIsNotString",
+    message: "NIP is not of type `string`"
+  } as const
+}
+
+
 function invalid_characters() {
   return {
     name: "NipContainsNonDigits",
@@ -86,13 +106,13 @@ function invalid_characters() {
   } as const
 }
 
-function invalid_length(nip: string) {
+function invalid_length(nip_candidate: string) {
   return {
     name: "NipInvalidLength",
     message: "NIP has invalid length",
     meta: {
-      expected_length: NIP_EXPECTED_LENGTH,
-      received_length: nip.length
+      expected_length: NIP_ALLOWED_LENGTH,
+      received_length: nip_candidate.length
     }
   } as const
 }
