@@ -16,6 +16,8 @@ const example_pesel = {
 
   thats_empty: "",
 
+  thats_zeroed_out: "0".repeat(11),
+
   that_contains_invalid_control_number: {
      value: "44051401459",
      current_invalid_control_digit: 9,
@@ -115,6 +117,29 @@ for(const validate_pesel of pesel_validation_implementations)  {
         )
     )
 
+    scenario `rejecting pesel containing only 0s`
+    (
+      given `pesel full of zeros`
+        (
+          _ => example_pesel.thats_zeroed_out
+        ),
+
+      when `pesel is validated`
+        (
+          ({ input }) => validate_pesel(input)
+        ),
+
+      then `pesel is rejected for containing only 0s`
+        (
+          ({ result }) => {
+            expect(result.ok).toBe(false)
+            expect(result.error).toStrictEqual({
+                name: "PeselContainsOnlyZeros",
+                message: "Received PESEL contains only digits equal to zero 0",              
+            })
+          }
+        )
+    )
 
     scenario `rejects non-numeric input`
     (
@@ -397,4 +422,3 @@ scenario `accepts valid pesel with control digit equal zero`
       test => expect(test.result.value).toEqual(test.input)
     )   
 )
-
