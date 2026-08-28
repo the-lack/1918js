@@ -14,8 +14,15 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
 
 - [X] Bump up mutation test coverage to 100%
 
-- [ ] Clean up implementation of REGON to make it copy-pasteable
-- [ ] Clean up implementation of PESEL to make it copy-pasteable
+- [X] Clean up implementation of REGON to make it copy-pasteable
+- [x] Clean up implementation of NIP to make it copy-pasteable
+- [X] Clean up implementation of PESEL to make it copy-pasteable
+
+- [ ] Handle the result type
+- [X] All accepts unknown
+    - [x] regon
+    - [x] nip
+    - [X] pesel
 
 - [ ] Make source code copy-pasteable. Shadcn type beat implementation
 - [ ] Create documentation page. Document:
@@ -26,10 +33,15 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
         - [ ] Example with a Zod Schema + catch all implementation
         - [ ] Throwing vs result
 
-- [ ] Add all-zero edge case check for:
-    - [ ] PESEL 
-    - [ ] NIP
-    - [ ] REGON
+- [X] Add all-zero edge case check for:
+    - [x] PESEL 
+    - [X] NIP
+    - [X] REGON
+
+- [X] Add runtime string validation:
+    - [X] PESEL 
+    - [X] NIP
+    - [X] REGON
 
 - [ ] Make API camelCased because JavaScript conventions and yada yada
 
