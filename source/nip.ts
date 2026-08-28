@@ -21,6 +21,9 @@ function validate_nip(nip_candidate: unknown) {
   if (!has_only_digits(nip_candidate))
     return err(invalid_characters());
 
+  if (has_only_zeros(nip_candidate))
+    return err(contains_only_zeros())
+    
   const { calculated_control_digit, received_control_digit } =
     derive_nip_control_digits(nip_candidate);
 
@@ -94,6 +97,15 @@ function derive_nip_control_digits(nip_candidate: string) {
   };
 }
 
+function has_only_zeros(nip_candidate: string) {
+  for (const character of nip_candidate) {
+    if (character !== "0") return false
+  }
+
+  return true
+}
+
+
 // ── errors  ──────────────────────────────────────────────────────────────────
 function invalid_type() {
   return {
@@ -140,5 +152,12 @@ function control_digit_mismatch(control_digit: {
       received_control_digit: control_digit.received_control_digit,
       control_digit_index: NIP_CONTROL_DIGIT_INDEX,
     }
+  } as const
+}
+
+function contains_only_zeros() {
+  return {
+    name: "NipContainsOnlyZeros",
+    message: "Received NIP contains only digits equal to zero 0",
   } as const
 }

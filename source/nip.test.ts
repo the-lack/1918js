@@ -104,6 +104,31 @@ suite("parse_nip", () => {
       )
     )
 
+
+    scenario `rejecting nip containing only 0s`
+    (
+      given `nip full of zeros`
+        (
+          _ => "0".repeat(10)
+        ),
+
+      when `nip is validated`
+        (
+          ({ input }) => validate_nip(input)
+        ),
+
+      then `nip is rejected for containing only 0s`
+        (
+          ({ result }) => {
+            expect(result.ok).toBe(false)
+            expect(result.error).toStrictEqual({
+                name: "NipContainsOnlyZeros",
+                message: "Received NIP contains only digits equal to zero 0",              
+            })
+          }
+        )
+    )    
+
     scenario `non-numeric input with proper length`
     (
         given `non-numeric input`.
