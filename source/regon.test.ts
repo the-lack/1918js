@@ -447,7 +447,7 @@ function invalid_length_error(input: string) {
       name: "RegonInvalidLength",
       message: "REGON has invalid length",
       meta: {
-        expected_length: [14, 9],
+        expected_length: [9, 14],
         received_length: input.length
       }
     }
