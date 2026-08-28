@@ -13,7 +13,7 @@ const NIP_ALLOWED_CHARACTERS: readonly string[] =
 function validate_nip(nip_candidate: unknown) {
 
   if (typeof nip_candidate !== "string")
-    return err(invalid_type())
+    return err(invalid_type(nip_candidate))
 
   if (!has_valid_length(nip_candidate))
     return err(invalid_length(nip_candidate));
@@ -107,11 +107,15 @@ function has_only_zeros(nip_candidate: string) {
 
 
 // ── errors  ──────────────────────────────────────────────────────────────────
-function invalid_type() {
+function invalid_type(nip_candidate: unknown) {
   return {
-    name: "NipIsNotString",
-    message: "NIP is not of type `string`"
-  } as const
+      name: "NipIsNotString",
+      message: "NIP is not of type `string`",
+      meta: {
+        expected_type: "string",
+        received_type: typeof nip_candidate
+      }
+    } as const
 }
 
 function invalid_characters() {

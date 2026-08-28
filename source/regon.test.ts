@@ -45,8 +45,11 @@ for(const validate_regon of regon_validation_implementations) {
               ok: false,
               error: {
                 name: "RegonIsNotString",
-                message: "REGON is not of type `string`"
-              }
+                message: "REGON is not of type `string`",
+                meta: {
+                  expected_type: "string",
+                  received_type: typeof test.input
+                }              }
             })
           )
       )

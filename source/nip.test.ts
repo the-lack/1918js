@@ -40,7 +40,11 @@ suite("parse_nip", () => {
               ok: false,
               error: {
                 name: "NipIsNotString",
-                message: "NIP is not of type `string`"
+                message: "NIP is not of type `string`",
+                meta: {
+                  expected_type: "string",
+                  received_type: typeof test.input
+                }
               }
             })
           )

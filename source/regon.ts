@@ -11,7 +11,7 @@ const REGON_ALLOWED_CHARACTERS: readonly string[] =
 
 function validate_regon(regon_candidate: unknown) {
   if(typeof regon_candidate !== "string")
-    return err(not_a_string())
+    return err(invalid_type(regon_candidate))
   
   if(!has_valid_length(regon_candidate))
     return err(invalid_length(regon_candidate))
@@ -104,15 +104,16 @@ function has_valid_length(regon_candidate: string) {
 }
 
 // ── errors  ──────────────────────────────────────────────────────────────────
-//
-
-function not_a_string() {
+function invalid_type(regon_candidate: unknown) {
   return {
-    name: "RegonIsNotString",
-    message: "REGON is not of type `string`",
-  } as const
+      name: "RegonIsNotString",
+      message: "REGON is not of type `string`",
+      meta: {
+        expected_type: "string",
+        received_type: typeof regon_candidate
+      }
+    } as const
 }
-
 
 function invalid_length(regon: string) {
   return {
