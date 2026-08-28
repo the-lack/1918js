@@ -8,7 +8,7 @@ const ALLOWED_CHARACTERS: readonly string[] =
 const PESEL_ALLOWED_LENGTH = 11
 const PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1] as const;
 
-function validate_pesel(pesel_candidate: string) {
+function validate_pesel(pesel_candidate: unknown) {
 
   if (typeof pesel_candidate !== "string")
     return err(invalid_type(pesel_candidate))
