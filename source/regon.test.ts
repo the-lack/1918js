@@ -25,6 +25,32 @@ const zeroed_out_regon_14 = "0".repeat(14)
 const regon_validation_implementations = [Regon.try_parse, validate_regon]
 
 for(const validate_regon of regon_validation_implementations) {
+
+    scenario `rejecting non-string value`
+      (
+        given `non-string regon value`.
+          such_as
+          (
+            _ => [undefined, 80082, 67, {}] as unknown[]
+          ),
+
+        when `validated`
+          (
+            test => validate_regon(test.input as any)
+          ),
+
+        then `regon is rejected for being non-string`
+          (
+            test => expect(test.result).toStrictEqual({
+              ok: false,
+              error: {
+                name: "RegonIsNotString",
+                message: "REGON is not of type `string`"
+              }
+            })
+          )
+      )
+  
   scenario `rejecting for invalid length`
     (
       given `input of length $length`

@@ -9,7 +9,10 @@ const REGON_VALID_LENGTHS: readonly number[] = [9, 14];
 const REGON_ALLOWED_CHARACTERS: readonly string[] =
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-function validate_regon(regon_candidate: string) {
+function validate_regon(regon_candidate: unknown) {
+  if(typeof regon_candidate !== "string")
+    return err(not_a_string())
+  
   if(!has_valid_length(regon_candidate))
     return err(invalid_length(regon_candidate))
 
@@ -45,7 +48,7 @@ class Regon {
     this.#value = regon;
   }
 
-  static try_parse(regon_candidate: string) {
+  static try_parse(regon_candidate: unknown) {
     const result = validate_regon(regon_candidate)
 
     if (!result.ok) return result;
@@ -101,6 +104,16 @@ function has_valid_length(regon_candidate: string) {
 }
 
 // ── errors  ──────────────────────────────────────────────────────────────────
+//
+
+function not_a_string() {
+  return {
+    name: "RegonIsNotString",
+    message: "REGON is not of type `string`",
+  } as const
+}
+
+
 function invalid_length(regon: string) {
   return {
     name: "RegonInvalidLength",
