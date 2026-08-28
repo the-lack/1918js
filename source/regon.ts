@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "./lib/result";
+import { err, ok } from "./lib/result";
 
 export { validate_regon, Regon }
 
@@ -9,11 +9,12 @@ class Regon {
     this.#value = regon;
   }
 
-  static try_parse(regon_candidate: string): Result<Regon, RegonError> {
+  static try_parse(regon_candidate: string) {
     const result = validate_regon(regon_candidate)
 
     if (!result.ok) return result;
-    else return ok(new Regon(result.value))
+
+    return ok(new Regon(result.value))
   }
 
   as_string(): string {
@@ -27,11 +28,7 @@ class Regon {
   }
 }
 
-
-
-
-const validate_regon = (regon: string): { ok: true, value: string, error?: never } | Result<string, RegonError> => {
-  if (regon.length === 9) {
+function validate_regon9(regon: string) {
     if (!(/^\d+$/.test(regon))) return err(invalid_characters())
     if (regon === "0".repeat(9)) return err(contains_only_zeros())
 
@@ -52,9 +49,9 @@ const validate_regon = (regon: string): { ok: true, value: string, error?: never
 
 
     return ok(regon)
-  }
+}
 
-  if (regon.length === 14) {
+function validate_regon14(regon: string) {
     if (!(/^\d+$/.test(regon))) return err(invalid_characters())
     const weights = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8] as const;
 
@@ -70,18 +67,22 @@ const validate_regon = (regon: string): { ok: true, value: string, error?: never
 
     const regon14_as_regon9 = regon.substring(0, 9)
 
-    const regon9_validation = validate_regon(regon14_as_regon9)
+    const regon9_validation = validate_regon9(regon14_as_regon9)
 
     if (!regon9_validation.ok) {
-      return { ok: false, error: regon9_validation.error }
+      return regon9_validation
     }
 
     if (received_control_number !== calculated_control_number)
       return err(invalid_control_digit({ received: received_control_number, expected: calculated_control_number, index: regon.length - 1 }))
 
     return ok(regon)
+}
 
-  }
+function validate_regon(regon: string) {
+  if(regon.length === 9) return validate_regon9(regon)
+  
+  if(regon.length === 14) return validate_regon14(regon)
 
   return err(invalid_length(regon))
 }
@@ -94,21 +95,21 @@ function invalid_length(regon: string) {
       expected_length: [14, 9],
       received_length: regon.length
     }
-  }
+  } as const
 }
 
 function invalid_characters() {
   return {
     name: "RegonContainsNonDigits",
     message: "REGON contains characters that are not digits",
-  }
+  } as const
 }
 
 function contains_only_zeros() {
   return {
     name: "RegonContainsOnlyZeros",
     message: "Received REGON contains only digits equal to zero 0",
-  }
+  } as const
 }
 
 
@@ -121,8 +122,5 @@ function invalid_control_digit(control_digit: { expected: number; received: numb
       received_control_digit: control_digit.received,
       control_digit_index: control_digit.index,
     }
-  }
+  } as const
 }
-
-
-type RegonError = ReturnType<typeof invalid_length> | ReturnType<typeof invalid_characters> | ReturnType<typeof invalid_control_digit> | ReturnType<typeof contains_only_zeros>

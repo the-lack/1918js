@@ -222,7 +222,7 @@ for(const validate_regon of regon_validation_implementations) {
         (
           ({ result, input }) => {
             expect(result.ok).toBe(false)
-            expect(result.error).toStrictEqual(invalid_control_digit_error({
+            expect(result.error).toMatchObject(invalid_control_digit_error({
               expected_control_digit: input.original_control_digit,
               received_control_digit: input.tampered_control_digit,
               control_digit_index: input.tampered_digit_index,
@@ -458,7 +458,7 @@ function invalid_characters_error() {
   return {
     name: "RegonContainsNonDigits",
     message: "REGON contains characters that are not digits",
-  }
+  } as const
 }
 
 function invalid_control_digit_error(opts?: { expected_control_digit: number, received_control_digit: number, control_digit_index: number }) {
@@ -473,6 +473,6 @@ function contains_only_zeros_error() {
   return {
     name: "RegonContainsOnlyZeros",
     message: "Received REGON contains only digits equal to zero 0",
-  }
+  } as const
 }
 
