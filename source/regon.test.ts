@@ -446,10 +446,10 @@ function set_of_regons_with_one_digit_tampered(regon: string) {
 
 function set_of_regons_with_control_digit_tampered(regon: string, which_digit: "first_control_digit" | "second_control_digit") {
   const legal_control_digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(String);
-  const first_control_digit_position = 9 - 1
-  const second_control_digit_position = 14 - 1
+  const first_control_digit_index = 9 - 1
+  const second_control_digit_index = 14 - 1
 
-  const digit_to_tamper = which_digit === "first_control_digit" ? first_control_digit_position : second_control_digit_position;
+  const digit_to_tamper = which_digit === "first_control_digit" ? first_control_digit_index : second_control_digit_index;
 
   const original_control_digit = regon[digit_to_tamper];
   const alternative_illegal_control_digits = legal_control_digits.filter(digit => digit !== original_control_digit)
