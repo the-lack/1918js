@@ -135,7 +135,7 @@ function control_digit_mismatch(digits: { received_control_number: number, calcu
     meta: {
       received_control_digit: digits.received_control_number,
       expected_control_digit: digits.calculated_control_number,
-      control_digit_position: PESEL_ALLOWED_LENGTH,
+      control_digit_index: PESEL_ALLOWED_LENGTH - 1,
     }
   } as const
 }

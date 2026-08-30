@@ -213,7 +213,7 @@ for(const validate_pesel of pesel_validation_implementations)  {
             meta: {
               received_control_digit: test.input.current_invalid_control_digit,
               expected_control_digit: test.input.what_control_digit_should_be,
-              control_digit_position: 11,
+              control_digit_index: 11 - 1,
             }
           })
         )
