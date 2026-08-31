@@ -1,18 +1,14 @@
 {
   "name": "1918js",
-  "version": "0.0.3",
-  "license": "MIT",
+  "version": "0.0.4",
   "author": "the-lack",
-  "description": "typescript validation library for polish identifiers: regon, nip, pesel",
-
-  "type": "module",
-  "main": "index.mjs",
-  "scripts": {
-    "works": "git clean -f -d -X && bun install --frozen-lockfile && tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel --coverage",
-    "test:mutation": "stryker run"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-lack/1918js.git"
   },
-
+  "main": "index.mjs",
   "devDependencies": {
+    "1918js": "^0.0.3",
     "@fast-check/vitest": "^0.4.1",
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^9.6.1",
@@ -24,23 +20,39 @@
     "stryker-mutator-bun-runner": "^0.4.0",
     "tsdown": "^0.22.14",
     "typescript": "^7.0.0",
-    "vitest": "^4.1.10",
-    "1918js": "^0.0.3"
+    "vitepress": "^2.0.0-alpha.19",
+    "vitepress-plugin-group-icons": "^1.7.6",
+    "vitest": "^4.1.10"
   },
-
+  "description": "typescript validation library for polish identifiers: regon, nip, pesel",
   "homepage": "https://github.com/the-lack/1918js",
-  "url": "https://github.com/the-lack/1918js/issues",
-  "repository": {
-	  "type": "git",
-	  "url": "https://github.com/the-lack/1918js.git"
-  },
   "keywords": [
-	"regon", "nip", "pesel", "validation", 
-	"poland", "polish", "value object", 
-	"identifiers", "validator", "pesel validator", 
-	"pesel validation", "regon validator", 
-	"regon validation", "typescript", "javascript", 
-	"nip validation", "nip validator"
-  ]
+    "regon",
+    "nip",
+    "pesel",
+    "validation",
+    "poland",
+    "polish",
+    "value object",
+    "identifiers",
+    "validator",
+    "pesel validator",
+    "pesel validation",
+    "regon validator",
+    "regon validation",
+    "typescript",
+    "javascript",
+    "nip validation",
+    "nip validator"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "works": "git clean -f -d -X && bun install --frozen-lockfile && tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel --coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "test:mutation": "stryker run"
+  },
+  "type": "module",
+  "url": "https://github.com/the-lack/1918js/issues"
 }
-

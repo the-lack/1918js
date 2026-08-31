@@ -1,6 +1,17 @@
 # Log
 Dirty storage of TODOs, ideas, issues and thoughts that come up during project development.
 
+### Critical issue
+- [ ] is order of error validation appropariite?
+  - [ ] PESEL
+  - [ ] NIP
+  - [ ] REGON
+
+- [ ] Are indexes properly returned.  Position vs Index?
+  - [ ] NIP
+  - [ ] REGON
+  - [ ] PESEL
+
 # Todosy
 
 - [X] PESEL Validation
