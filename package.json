@@ -47,7 +47,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "works": "git clean -f -d -X && bun install --frozen-lockfile && tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel --coverage",
+    "works": "git clean -f -d -X && bun install --frozen-lockfile && tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel --coverage && bun docs:build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
