@@ -4,7 +4,7 @@
 validation library for polish identifiers
 
 ### features
-- validation utilityies for polish identifiers: NIP, PESEL, REGON
+- validation utilities for polish identifiers: NIP, PESEL, REGON
 - no external dependencies
 - extensive testing (unit tests, property-based tests, mutation-tests)
 
