@@ -1,4 +1,4 @@
-# 1918js - [documentation](https://the-lack.github.io/1918js/)
+# 1918js
 
 ### what is this?
 validation library for polish identifiers
@@ -30,3 +30,6 @@ if(!result.ok) {
   console.log("error message", result.error.message)
 }
 ```
+
+### learn more
+[documentation](https://the-lack.github.io/1918js/)
