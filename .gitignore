@@ -6,4 +6,4 @@ tsconfig.tsbuildinfo
 .stryker-tmp
 reports/**/**
 coverage/
-.vitepress/cache
+docs/.vitepress/cache/deps
