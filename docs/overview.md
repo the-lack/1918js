@@ -70,41 +70,7 @@ if(!result.ok) {
 }
 ```
 
-#### REGON / value-object api
-
-::: tip
-Value-objects are instances of classes.
-
-Value-objects serve as encapsulators of valid data and behaviour related to it.
-
-Value-objects serve as runtime-safe alternative to branded types.
-
-You can use them as function arguments.
-:::
-
-```ts [value-object-example.ts]
-import { Regon } from "1918js"
-
-declare const some_unknown_user_input: unknown;
-
-const result = Regon.try_parse(some_unknown_user_input)
-
-if(result.ok) {
-  console.log("happy path :)")
-
-  const regon_object = result.value
-  console.log("our value: ", regon_object.as_string())
-}
-
-if(!result.ok) {
-  console.log("you know what path this is :(")
-
-  // error is accessed as a value, never thrown
-  console.log("error name", result.error.name)
-  console.log("error message", result.error.message)
-}
-```
-
+## Advanced usage
 
 #### Zod validator wrapper
 
@@ -128,4 +94,38 @@ const my_form_schema = z.object({
   first_name: z.string(), // example field
   // some other fields...
 })
+```
+
+#### Value object wrapper
+
+You can also create your custom value-object wrapper.
+
+```ts [value-object-wrapper-example.ts]
+import { validate_regon } from "1918js"
+
+class Regon {
+  #value: string;
+
+  private constructor(regon: string) {
+    this.#value = regon;
+  }
+
+  static try_parse(regon_candidate: unknown) {
+    const result = validate_regon(regon_candidate)
+
+    if (!result.ok) return result;
+
+    return ok(new Regon(result.value))
+  }
+
+  as_string(): string {
+    return this.#value;
+  }
+
+  equals(other: unknown): other is Regon {
+    if (!(other instanceof Regon)) return false;
+
+    return this.#value === other.#value;
+  }
+}
 ```

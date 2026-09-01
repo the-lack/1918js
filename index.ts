@@ -1,3 +1,3 @@
-export { validate_nip, Nip } from "./source/nip";
-export { validate_regon, Regon } from "./source/regon";
-export { validate_pesel, Pesel } from "./source/pesel";
+export { validate_nip } from "./source/nip";
+export { validate_regon } from "./source/regon";
+export { validate_pesel } from "./source/pesel";

@@ -1,6 +1,6 @@
 import { err, ok } from "./lib/result";
 
-export { validate_pesel, Pesel }
+export { validate_pesel }
 
 // ── functional implementation ────────────────────────────────────────────────
 const ALLOWED_CHARACTERS: readonly string[] =
@@ -29,32 +29,6 @@ function validate_pesel(pesel_candidate: unknown) {
   }
 
   return ok(pesel_candidate)
-}
-
-// ── nominal value-object shell ───────────────────────────────────────────────
-class Pesel {
-  #value: string
-
-  private constructor(value: string) {
-    this.#value = value
-  }
-
-  static try_parse(candidate: unknown) {
-    const result = validate_pesel(candidate as any)
-
-    if (!result.ok) return result
-
-    return ok(new Pesel(result.value))
-  }
-
-  as_string(): string {
-    return this.#value
-  }
-
-  equals(other: unknown): other is Pesel {
-    if (!(other instanceof Pesel)) return false;
-    return this.#value === other.#value;
-  }
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

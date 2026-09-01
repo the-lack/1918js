@@ -1,6 +1,6 @@
 import { err, ok } from "./lib/result"
 
-export { validate_nip, Nip };
+export { validate_nip };
 
 // ── functional implementation ────────────────────────────────────────────────
 const NIP_MODULO = 11
@@ -38,34 +38,6 @@ function validate_nip(nip_candidate: unknown) {
 
   return ok(nip_candidate);
 }
-
-// ── nominal value-object shell ───────────────────────────────────────────────
-class Nip {
-  #value: string;
-
-  private constructor(nip_candidate: string) {
-    this.#value = nip_candidate;
-  }
-
-  static try_parse(nip_candidate: unknown) {
-    const result = validate_nip(nip_candidate)
-
-    if (!result.ok) return result;
-
-    return ok(new Nip(result.value))
-  }
-
-  as_string(): string {
-    return this.#value;
-  }
-
-  equals(other: unknown) {
-    if (!(other instanceof Nip)) return false;
-
-    return this.#value === other.#value;
-  }
-}
-
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function has_only_digits(nip_candidate: string) {

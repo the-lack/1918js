@@ -1,6 +1,6 @@
 import { err, ok } from "./lib/result";
 
-export { validate_regon, Regon }
+export { validate_regon }
 
 // ── functional implementation ────────────────────────────────────────────────
 const REGON9_WEIGHTS: readonly number[]  =  [8, 9, 2, 3, 4, 5, 6, 7] as const;
@@ -38,33 +38,6 @@ function validate_regon(regon_candidate: unknown) {
   }
 
   return ok(regon_candidate)
-}
-
-// ── nominal value-object shell ───────────────────────────────────────────────
-class Regon {
-  #value: string;
-
-  private constructor(regon: string) {
-    this.#value = regon;
-  }
-
-  static try_parse(regon_candidate: unknown) {
-    const result = validate_regon(regon_candidate)
-
-    if (!result.ok) return result;
-
-    return ok(new Regon(result.value))
-  }
-
-  as_string(): string {
-    return this.#value;
-  }
-
-  equals(other: unknown): other is Regon {
-    if (!(other instanceof Regon)) return false;
-
-    return this.#value === other.#value;
-  }
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

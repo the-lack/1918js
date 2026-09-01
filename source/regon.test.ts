@@ -1,10 +1,10 @@
 import { expect } from "bun:test";
 import { $ } from "./lib/bdd-utility"
-import { validate_regon, Regon } from "./regon";
+import { validate_regon } from "./regon";
 import { get_fc_numeric_string } from "./lib/fc-utilities";
 import fc from "fast-check";
 
-const { scenario, given, when, then, and } = $;
+const { scenario, given, when, then } = $;
 
 const valid_regon_9_length = "630303023"
 const valid_regon_14_length = "12345678512347"
@@ -21,10 +21,6 @@ const invalid_regon14_where_control_digit_should_be_0_yet_is_not = "123456785423
 
 const zeroed_out_regon_9  = "0".repeat(9)
 const zeroed_out_regon_14 = "0".repeat(14)
-
-const regon_validation_implementations = [Regon.try_parse, validate_regon]
-
-for(const validate_regon of regon_validation_implementations) {
 
     scenario `rejecting non-string value`
       (
@@ -259,7 +255,7 @@ for(const validate_regon of regon_validation_implementations) {
           }
         )
     )
-}
+
 
 scenario `accepting valid regon`
   (
@@ -282,139 +278,7 @@ scenario `accepting valid regon`
         }
       )
   )
-
-// vo validation
-scenario `valid regon comparison`
-(
-    given `valid regon value`
-    .such_as
-    (
-      _ => [valid_regon_9_length, valid_regon_14_length]
-    ),
-
-    when `it's used for initializing 2 independent VOs`
-    (
-      test => ({
-                regon1: Regon.try_parse(test.input),
-                regon2: Regon.try_parse(test.input)
-              })
-    ),
-
-    then `both VOs are valid`
-    (
-      test => {
-                expect(test.result.regon1.ok).toBe(true)
-                expect(test.result.regon2.ok).toBe(true)
-              }
-    ),
-
-    and `both VOs contain same value`
-    (
-      test => expect(test.result.regon1.value?.as_string()).
-              toEqual(test.result.regon2.value?.as_string())
-    ),
-
-    and `their 'equals' comparison says they contain same value`
-    (
-      test => expect(test.result.regon1.value?.equals(test.result.regon2.value)).
-              toBe(true)
-    )
-    
-)
-
-scenario `valid regon comparison`
-(
-    given `2 different valid regon values`.
-    such_as
-    (
-      _ => [
-        ({ value1: valid_regon_9_length, value2: valid_regon9_where_control_digit_is_0 }),
-        ({ value1: valid_regon_14_length, value2: valid_regon14_where_control_digit_is_0 })
-      ]
-    ),
-
-    when `they are used for initializing 2 independent VOs`
-    (
-      test => ({
-                regon1: Regon.try_parse(test.input.value1),
-                regon2: Regon.try_parse(test.input.value2)
-              })
-    ),
-
-    then `both VOs are valid`
-    (
-      test => {
-                expect(test.result.regon1.ok).toBe(true)
-                expect(test.result.regon2.ok).toBe(true)
-              }
-    ),
-
-    and `both VOs contain different value`
-    (
-      test => expect(test.result.regon1.value?.as_string()).
-              not.
-              toEqual(test.result.regon2.value?.as_string())
-    ),
-
-    and `their 'equals' comparison says they do not contain same value`
-    (
-      test => expect(test.result.regon1.value?.equals(test.result.regon2.value))
-              .not.
-              toBe(true)
-    )
-)
-
-scenario `accepts valid regon`
-(
-    given `valid regon`.
-    such_as
-    (
-      _ => [valid_regon_9_length]
-    ),
-
-    when `valid regon is validated`
-    (
-      test => Regon.try_parse(test.input)
-    ),
-
-    then `input is accepted`
-    (
-      test => expect(test.result.ok).toBe(true)
-    ),
-
-    and `return value object`
-    (
-      test => expect(test.result.value).toBeInstanceOf(Regon)
-    ),
-
-    and `value object value contains original input`
-    (
-      test => expect(test.input as string).toEqual(test.result?.value!.as_string())
-    )
-)
-
-
-scenario `regon is not equal to a non-regon`
-(
-  given `a valid regon`
-  (
-    _ => valid_regon_9_length
-  ),
-
-  when `it's compared with a string`
-  (
-    test => ({
-      regon: Regon.try_parse(test.input).value!,
-      other: test.input
-    })
-  ),
-
-  then `they are not equal`
-  (
-    test => expect(test.result.regon.equals(test.result.other)).toBe(false)
-  )
-)
-  
+ 
 function set_of_regons_with_non_digit_tampered(regon: string) {
   const non_digits = ["A", "X", "-", " "];
 
