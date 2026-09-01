@@ -1,6 +1,6 @@
 {
   "name": "1918js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "the-lack",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "vitest": "4.1.10"
   },
   "description": "typescript validation library for polish identifiers: regon, nip, pesel",
-  "homepage": "https://github.com/the-lack/1918js",
+  "homepage": "https://the-lack.github.io/1918js/",
   "keywords": [
     "regon",
     "nip",
