@@ -10,9 +10,7 @@ outline: deep
 - REGON
 - NIP
 
-Each of those modules exposes:
-1. Simple functional API
-2. Nominally-typed value-object API
+Each of those modules exposes a simple functional API.
 
 ## Installation
 
@@ -42,19 +40,19 @@ $ deno add 1918js
 
 ## Basic usage 
 
-#### REGON / functional api
+#### REGON example
 ::: info
 Usage is the same for all identifiers.
 
 Error is always returned. Never thrown.
 :::
 
-```ts [functional-example.ts]
-import { validate_regon } from "1918js"
+```ts [validate-user-input-example.ts]
+import { validateRegon } from "1918js"
 
-declare const some_unknown_user_input: unknown;
+declare const someUnknownUserInput: unknown;
 
-const result = validate_regon(some_unknown_user_input)
+const result = validateRegon(someUnknownUserInput)
 
 if(result.ok) {
   console.log("happy path :)")
@@ -76,10 +74,10 @@ if(!result.ok) {
 
 ```ts [zod-validator-example.ts]
 import z from "zod"
-import { validate_regon } from "1918js"
+import { validateRegon } from "1918js"
 
-const regon_schema = z.any().superRefine((regonValue, ctx) => {
-  const result = validate_regon(regonValue);
+const regonSchema = z.any().superRefine((regonValue, ctx) => {
+  const result = validateRegon(regonValue);
 
   if (!result.ok) {
     ctx.addIssue({
@@ -89,9 +87,8 @@ const regon_schema = z.any().superRefine((regonValue, ctx) => {
   }
 });
 
-const my_form_schema = z.object({
-  regon: regon_schema,
-  first_name: z.string(), // example field
+const myFormSchema = z.object({
+  regon: regonSchema,
   // some other fields...
 })
 ```
@@ -101,7 +98,7 @@ const my_form_schema = z.object({
 You can also create your custom value-object wrapper.
 
 ```ts [value-object-wrapper-example.ts]
-import { validate_regon } from "1918js"
+import { validateRegon } from "1918js"
 
 class Regon {
   #value: string;
@@ -110,15 +107,15 @@ class Regon {
     this.#value = regon;
   }
 
-  static try_parse(regon_candidate: unknown) {
-    const result = validate_regon(regon_candidate)
+  static tryParse(regonCandidate: unknown) {
+    const result = validateRegon(regonCandidate)
 
     if (!result.ok) return result;
 
     return ok(new Regon(result.value))
   }
 
-  as_string(): string {
+  asString(): string {
     return this.#value;
   }
 

@@ -1,21 +1,32 @@
-
-# 1918js
+# 1918js - [documentation](https://the-lack.github.io/1918js/)
 
 ### what is this?
 validation library for polish identifiers
 
 ### features
-
-- nip validation (functional API)
-- nip parsing (value object / nominal type implementation)
-
-- regon validation (functional API)
-- regon parsing (value object / nominal type implementation)
-
-
+- validation utilityies for polish identifiers: NIP, PESEL, REGON
 - no external dependencies
 - extensive testing (unit tests, property-based tests, mutation-tests)
 
-# roadmap
+### how to use
 
-- [ ] pesel support
+```ts
+import { validateRegon } from "1918js"
+
+declare const someUnknownUserInput: unknown;
+
+const result = validateRegon(someUnknownUserInput)
+
+if(result.ok) {
+  console.log("happy path :)")
+  console.log("our value: ", result.value)
+}
+
+if(!result.ok) {
+  console.log("you know what path this is :(")
+
+  // error is accessed as a value, never thrown
+  console.log("error name", result.error.name)
+  console.log("error message", result.error.message)
+}
+```
