@@ -1,6 +1,6 @@
 import { expect } from "bun:test"
 import { $ } from "./lib/bdd-utility"
-import { validate_pesel } from "./pesel.ts"
+import { validatePesel } from "./pesel.ts"
 import fc from "fast-check";
 import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities.ts";
 
@@ -43,7 +43,7 @@ scenario `rejects empty input`
 
     when `empty input validated`
     (
-      test => validate_pesel(test.input)
+      test => validatePesel(test.input)
     ),
 
     then `input is rejected`
@@ -57,8 +57,8 @@ scenario `rejects empty input`
         name: "PeselHasInvalidLength",
         message: "PESEL has invalid length",
         meta: {
-          expected_length: 11,
-          received_length: test.input.length
+          expectedLength: 11,
+          receivedLength: test.input.length
         }
       })
     ) 
@@ -74,7 +74,7 @@ scenario `rejects non-string input`
 
     when `non-string input is rejected`
     (
-      test => validate_pesel(test.input as any)
+      test => validatePesel(test.input as any)
     ),
 
     then `input is rejected`
@@ -88,8 +88,8 @@ scenario `rejects non-string input`
         name: "PeselIsNotString",
         message: "PESEL is not of type `string`",
         meta: {
-          expected_type: "string",
-          received_type: typeof test.input
+          expectedType: "string",
+          receivedType: typeof test.input
         }
       })
     )
@@ -105,7 +105,7 @@ scenario `rejects blank input`
 
     when `blank input is validated`
     (
-      test => validate_pesel(test.input)
+      test => validatePesel(test.input)
     ),
 
     then `input is rejected`
@@ -123,7 +123,7 @@ scenario `rejecting pesel containing only 0s`
 
   when `pesel is validated`
     (
-      ({ input }) => validate_pesel(input)
+      ({ input }) => validatePesel(input)
     ),
 
   then `pesel is rejected for containing only 0s`
@@ -148,7 +148,7 @@ scenario `rejects non-numeric input`
 
     when `non-numeric input is validated`
     (
-      test => validate_pesel(test.input)
+      test => validatePesel(test.input)
     ),
 
     then `input is rejected`
@@ -176,7 +176,7 @@ scenario `rejects numeric input of invalid length`
 
     when `validation occurs`
     (
-      test => validate_pesel(test.input)
+      test => validatePesel(test.input)
     ),
 
     then `input is rejected`
@@ -194,7 +194,7 @@ scenario `rejecting pesel with invalid control number`
 
     when `validation occurs`
     (
-      test => validate_pesel(test.input.value)
+      test => validatePesel(test.input.value)
     ),
 
     then `input is rejected`
@@ -208,9 +208,9 @@ scenario `rejecting pesel with invalid control number`
         name: "PeselControlDigitMismatch",
         message: "Calculated control digit does not match one contained in the PESEL",
         meta: {
-          received_control_digit: test.input.current_invalid_control_digit,
-          expected_control_digit: test.input.what_control_digit_should_be,
-          control_digit_index: 11 - 1,
+          receivedControlDigit: test.input.current_invalid_control_digit,
+          expectedControlDigit: test.input.what_control_digit_should_be,
+          controlDigitIndex: 11 - 1,
         }
       })
     )
@@ -226,7 +226,7 @@ scenario `accepts valid pesel`
 
     when `valid pesel is validated`
     (
-      test => validate_pesel(test.input)
+      test => validatePesel(test.input)
     ),
 
     then `input is accepted`
@@ -249,7 +249,7 @@ scenario `accepts valid pesel with control digit equal zero`
 
     when `valid pesel is validated`
     (
-      test => validate_pesel(test.input)
+      test => validatePesel(test.input)
     ),
 
     then `input is accepted`

@@ -1,6 +1,6 @@
 import { expect } from "bun:test";
 import { $ } from "./lib/bdd-utility"
-import { validate_regon } from "./regon";
+import { validateRegon } from "./regon";
 import { get_fc_numeric_string } from "./lib/fc-utilities";
 import fc from "fast-check";
 
@@ -32,7 +32,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
         when `validated`
           (
-            test => validate_regon(test.input as any)
+            test => validateRegon(test.input as any)
           ),
 
         then `regon is rejected for being non-string`
@@ -43,8 +43,8 @@ const zeroed_out_regon_14 = "0".repeat(14)
                 name: "RegonIsNotString",
                 message: "REGON is not of type `string`",
                 meta: {
-                  expected_type: "string",
-                  received_type: typeof test.input
+                  expectedType: "string",
+                  receivedType: typeof test.input
                 }              }
             })
           )
@@ -65,7 +65,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `input is validated`
         (
-          ({ input }) => validate_regon(input.value)
+          ({ input }) => validateRegon(input.value)
         ),
 
       then `input is rejected for invalid length`
@@ -87,7 +87,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `input is validated`
         (
-          ({ input })=> validate_regon(input.value)
+          ({ input })=> validateRegon(input.value)
         ),
 
       then `input is not rejected for invalid length`
@@ -109,7 +109,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `input validated`
         (
-          ({ input }) => validate_regon(input)
+          ({ input }) => validateRegon(input)
         ),
 
       then `input is rejected for having non-digit characters`
@@ -135,7 +135,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `input validated`
         (
-          ({ input }) => validate_regon(input)
+          ({ input }) => validateRegon(input)
         ),
 
       then `input is not rejected for having non-digit characters`
@@ -159,7 +159,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `regon is validated`
         (
-          ({ input }) => validate_regon(input)
+          ({ input }) => validateRegon(input)
         ),
 
       then `regon is rejected for invalid control digit`
@@ -185,7 +185,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `regon is validated`
         (
-          ({ input }) => validate_regon(input)
+          ({ input }) => validateRegon(input)
         ),
 
       then `regon is rejected for containing only 0s`
@@ -210,7 +210,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `tampered regon is validated`
         (
-          ({ input }) => validate_regon(input)
+          ({ input }) => validateRegon(input)
         ),
 
       then `regon is rejected for having invalid control digit`
@@ -240,7 +240,7 @@ const zeroed_out_regon_14 = "0".repeat(14)
 
       when `tampered regon validated`
         (
-          ({ input }) => validate_regon(input.tampered_regon)
+          ({ input }) => validateRegon(input.tampered_regon)
         ),
 
       then `regon is rejected for invalid control digit`
@@ -248,9 +248,9 @@ const zeroed_out_regon_14 = "0".repeat(14)
           ({ result, input }) => {
             expect(result.ok).toBe(false)
             expect(result.error).toMatchObject(invalid_control_digit_error({
-              expected_control_digit: input.original_control_digit,
-              received_control_digit: input.tampered_control_digit,
-              control_digit_index: input.tampered_digit_index,
+              expectedControlDigit: input.original_control_digit,
+              receivedControlDigit: input.tampered_control_digit,
+              controlDigitIndex: input.tampered_digit_index,
             }))
           }
         )
@@ -267,7 +267,7 @@ scenario `accepting valid regon`
 
     when `input validated`
       (
-        ({ input }) => validate_regon(input)
+        ({ input }) => validateRegon(input)
       ),
 
     then `input is accepted`
@@ -340,8 +340,8 @@ function invalid_length_error(input: string) {
       name: "RegonInvalidLength",
       message: "REGON has invalid length",
       meta: {
-        expected_length: [9, 14],
-        received_length: input.length
+        expectedLength: [9, 14],
+        receivedLength: input.length
       }
     }
   } as const;
@@ -354,7 +354,7 @@ function invalid_characters_error() {
   } as const
 }
 
-function invalid_control_digit_error(opts?: { expected_control_digit: number, received_control_digit: number, control_digit_index: number }) {
+function invalid_control_digit_error(opts?: { expectedControlDigit: number, receivedControlDigit: number, controlDigitIndex: number }) {
   return {
     name: "RegonControlDigitMismatch",
     message: "Received REGON control digit does not match calculated control digit",

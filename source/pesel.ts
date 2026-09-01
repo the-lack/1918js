@@ -1,6 +1,6 @@
 import { err, ok } from "./lib/result";
 
-export { validate_pesel }
+export { validatePesel }
 
 // ── functional implementation ────────────────────────────────────────────────
 const ALLOWED_CHARACTERS: readonly string[] =
@@ -8,108 +8,109 @@ const ALLOWED_CHARACTERS: readonly string[] =
 const PESEL_ALLOWED_LENGTH = 11
 const PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1] as const;
 
-function validate_pesel(pesel_candidate: unknown) {
+function validatePesel(peselCandidate: unknown) {
 
-  if (typeof pesel_candidate !== "string")
-    return err(invalid_type(pesel_candidate))
+  if (typeof peselCandidate !== "string")
+    return err(invalidType(peselCandidate))
 
-  if (!has_valid_length(pesel_candidate))
-    return err(invalid_length(pesel_candidate))
+  if (!hasValidLength(peselCandidate))
+    return err(invalidLength(peselCandidate))
 
-  if (!has_only_digits(pesel_candidate))
-    return err(invalid_characters())
+  if (!hasOnlyDigits(peselCandidate))
+    return err(invalidCharacters())
 
-  if (has_only_zeros(pesel_candidate))
-    return err(contains_only_zeros())
+  if (hasOnlyZeros(peselCandidate))
+    return err(containsOnlyZeros())
 
-  const digits = derive_pesel_control_digits(pesel_candidate)
+  const digits = derivePeselControlDigit(peselCandidate)
 
-  if (digits.received_control_number !== digits.calculated_control_number) {
-    return err(control_digit_mismatch(digits))
+  if (digits.receivedControlNumber !== digits.calculatedControlNumber) {
+    return err(controlDigitMismatch(digits))
   }
 
-  return ok(pesel_candidate)
+  return ok(peselCandidate)
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-function has_valid_length(pesel_candidate: string) {
-  return pesel_candidate.length === PESEL_ALLOWED_LENGTH
+function hasValidLength(peselCandidate: string) {
+  return peselCandidate.length === PESEL_ALLOWED_LENGTH
 }
 
-function has_only_zeros(pesel_candidate: string) {
-  for (const character of pesel_candidate) {
+function hasOnlyZeros(peselCandidate: string) {
+  for (const character of peselCandidate) {
     if (character !== "0") return false
   }
 
   return true
 }
 
-function has_only_digits(pesel_candidate: string) {
-  for (const character of pesel_candidate) {
+function hasOnlyDigits(peselCandidate: string) {
+  for (const character of peselCandidate) {
     if (!ALLOWED_CHARACTERS.includes(character))
       return false
   }
   return true
 }
 
-function derive_pesel_control_digits(pesel_candidate: string) {
-  const pesel_digits: number[] = pesel_candidate.split("").map(Number)
-  const received_control_number = pesel_digits.pop()!
+function derivePeselControlDigit(peselCandidate: string) {
+  const peselDigits: number[] = peselCandidate.split("").map(Number)
+  const receivedControlNumber = peselDigits.pop()!
 
-  const weighted_sum = pesel_digits.reduce((accumulator, current_digit, index) => {
-    return accumulator + (current_digit * PESEL_WEIGHTS[index]!)
+  const weightedSum = peselDigits.reduce((accumulator, currentDigit, index) => {
+    return accumulator + (currentDigit * PESEL_WEIGHTS[index]!)
   }, 0)
 
-  const subtrahend = weighted_sum % 10;
-  const calculated_control_number = subtrahend === 0 ? 0 : 10 - subtrahend;
+  const subtrahend = weightedSum % 10;
+  const calculatedControlNumber = subtrahend === 0 ? 0 : 10 - subtrahend;
 
-  return { received_control_number, calculated_control_number }
+  return { receivedControlNumber, calculatedControlNumber }
 }
 
 // ── errors  ──────────────────────────────────────────────────────────────────
-function invalid_type(pesel_candidate: unknown) {
+function invalidType(peselCandidate: unknown) {
   return {
     name: "PeselIsNotString",
     message: "PESEL is not of type `string`",
     meta: {
-      expected_type: "string",
-      received_type: typeof pesel_candidate
+      expectedType: "string",
+      receivedType: typeof peselCandidate
     }
   } as const
 }
 
-function invalid_length(pesel_candidate: string) {
+function invalidLength(peselCandidate: string) {
   return {
     name: "PeselHasInvalidLength",
     message: "PESEL has invalid length",
     meta: {
-      expected_length: PESEL_ALLOWED_LENGTH,
-      received_length: pesel_candidate.length
+      expectedLength: PESEL_ALLOWED_LENGTH,
+      receivedLength: peselCandidate.length
     }
   } as const
 }
 
-function invalid_characters() {
+function invalidCharacters() {
   return {
     name: "PeselContainsNonDigitCharacters",
     message: "PESEL contains non-numeric characters"
   } as const
 }
 
-function contains_only_zeros() {
+function containsOnlyZeros() {
   return {
     name: "PeselContainsOnlyZeros",
     message: "Received PESEL contains only digits equal to zero 0",
   } as const
 }
-function control_digit_mismatch(digits: { received_control_number: number, calculated_control_number: number }) {
+
+function controlDigitMismatch(digits: { receivedControlNumber: number, calculatedControlNumber: number }) {
   return {
     name: "PeselControlDigitMismatch",
     message: "Calculated control digit does not match one contained in the PESEL",
     meta: {
-      received_control_digit: digits.received_control_number,
-      expected_control_digit: digits.calculated_control_number,
-      control_digit_index: PESEL_ALLOWED_LENGTH - 1,
+      receivedControlDigit: digits.receivedControlNumber,
+      expectedControlDigit: digits.calculatedControlNumber,
+      controlDigitIndex: PESEL_ALLOWED_LENGTH - 1,
     }
   } as const
 }

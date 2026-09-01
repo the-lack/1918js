@@ -1,6 +1,6 @@
 import { err, ok } from "./lib/result"
 
-export { validate_nip };
+export { validateNip };
 
 // ── functional implementation ────────────────────────────────────────────────
 const NIP_MODULO = 11
@@ -10,38 +10,38 @@ const NIP_WEIGHTS: readonly number[] = [6, 5, 7, 2, 3, 4, 5, 6, 7]
 const NIP_ALLOWED_CHARACTERS: readonly string[] =
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-function validate_nip(nip_candidate: unknown) {
+function validateNip(nipCandidate: unknown) {
 
-  if (typeof nip_candidate !== "string")
-    return err(invalid_type(nip_candidate))
+  if (typeof nipCandidate !== "string")
+    return err(invalidType(nipCandidate))
 
-  if (!has_valid_length(nip_candidate))
-    return err(invalid_length(nip_candidate));
+  if (!hasValidLength(nipCandidate))
+    return err(invalidLength(nipCandidate));
 
-  if (!has_only_digits(nip_candidate))
-    return err(invalid_characters());
+  if (!hasOnlyDigits(nipCandidate))
+    return err(invalidCharacters());
 
-  if (has_only_zeros(nip_candidate))
-    return err(contains_only_zeros())
+  if (hasOnlyZeros(nipCandidate))
+    return err(containsOnlyZeros())
     
-  const { calculated_control_digit, received_control_digit } =
-    derive_nip_control_digits(nip_candidate);
+  const { calculatedControlDigit, receivedControlDigit } =
+    deriveNipControlDigit(nipCandidate);
 
-  if (calculated_control_digit === 10)
-    return err(invalid_control_digit());
+  if (calculatedControlDigit === 10)
+    return err(invalidControlDigit());
 
-  if (received_control_digit !== calculated_control_digit)
-    return err(control_digit_mismatch({
-      calculated_control_digit,
-      received_control_digit
+  if (receivedControlDigit !== calculatedControlDigit)
+    return err(controlDigitMismatch({
+      calculatedControlDigit,
+      receivedControlDigit
     }));
 
-  return ok(nip_candidate);
+  return ok(nipCandidate);
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-function has_only_digits(nip_candidate: string) {
-  for (const character of nip_candidate) {
+function hasOnlyDigits(nipCandidate: string) {
+  for (const character of nipCandidate) {
     if (!NIP_ALLOWED_CHARACTERS.includes(character))
       return false;
   }
@@ -49,89 +49,88 @@ function has_only_digits(nip_candidate: string) {
   return true
 }
 
-function has_valid_length(nip_candidate: string) {
-  return nip_candidate.length === NIP_ALLOWED_LENGTH
+function hasValidLength(nipCandidate: string) {
+  return nipCandidate.length === NIP_ALLOWED_LENGTH
 }
 
-function derive_nip_control_digits(nip_candidate: string) {
-  const digits = nip_candidate.split("").map(Number);
-  const all_digits_except_control_digit = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
+function deriveNipControlDigit(nipCandidate: string) {
+  const digits = nipCandidate.split("").map(Number);
+  const allDigitsExceptControlDigit = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
 
-  const weighted_sum = all_digits_except_control_digit
+  const weightedSum = allDigitsExceptControlDigit
     .reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
 
-  const calculated_control_digit = weighted_sum % NIP_MODULO;
-  const received_control_digit = digits[NIP_CONTROL_DIGIT_INDEX]!;
+  const calculatedControlDigit = weightedSum % NIP_MODULO;
+  const receivedControlDigit = digits[NIP_CONTROL_DIGIT_INDEX]!;
 
   return {
-    calculated_control_digit,
-    received_control_digit
+    calculatedControlDigit,
+    receivedControlDigit
   };
 }
 
-function has_only_zeros(nip_candidate: string) {
-  for (const character of nip_candidate) {
+function hasOnlyZeros(nipCandidate: string) {
+  for (const character of nipCandidate) {
     if (character !== "0") return false
   }
 
   return true
 }
 
-
 // ── errors  ──────────────────────────────────────────────────────────────────
-function invalid_type(nip_candidate: unknown) {
+function invalidType(nipCandidate: unknown) {
   return {
       name: "NipIsNotString",
       message: "NIP is not of type `string`",
       meta: {
-        expected_type: "string",
-        received_type: typeof nip_candidate
+        expectedType: "string",
+        receivedType: typeof nipCandidate
       }
     } as const
 }
 
-function invalid_characters() {
+function invalidCharacters() {
   return {
     name: "NipContainsNonDigits",
     message: "NIP contains characters that are not digits"
   } as const
 }
 
-function invalid_length(nip_candidate: string) {
+function invalidLength(nipCandidate: string) {
   return {
     name: "NipInvalidLength",
     message: "NIP has invalid length",
     meta: {
-      expected_length: NIP_ALLOWED_LENGTH,
-      received_length: nip_candidate.length
+      expectedLength: NIP_ALLOWED_LENGTH,
+      receivedLength: nipCandidate.length
     }
   } as const
 }
 
-function invalid_control_digit() {
+function invalidControlDigit() {
   return {
     name: "NipCalculatedControlDigitCannotBeTen",
     message: "Control digit calculated for NIP cannot equal 10"
   } as const
 }
 
-function control_digit_mismatch(control_digit: {
-  calculated_control_digit: number;
-  received_control_digit: number;
+function controlDigitMismatch(controlDigit: {
+  calculatedControlDigit: number;
+  receivedControlDigit: number;
 }) {
   return {
     name: "NipControlDigitMismatch",
     message: "Received NIP control digit does not match calculated control digit",
     meta:
     {
-      expected_control_digit: control_digit.calculated_control_digit,
-      received_control_digit: control_digit.received_control_digit,
-      control_digit_index: NIP_CONTROL_DIGIT_INDEX,
+      expectedControlDigit: controlDigit.calculatedControlDigit,
+      receivedControlDigit: controlDigit.receivedControlDigit,
+      controlDigitIndex: NIP_CONTROL_DIGIT_INDEX,
     }
   } as const
 }
 
-function contains_only_zeros() {
+function containsOnlyZeros() {
   return {
     name: "NipContainsOnlyZeros",
     message: "Received NIP contains only digits equal to zero 0",

@@ -1,6 +1,6 @@
 import { err, ok } from "./lib/result";
 
-export { validate_regon }
+export { validateRegon }
 
 // ── functional implementation ────────────────────────────────────────────────
 const REGON9_WEIGHTS: readonly number[]  =  [8, 9, 2, 3, 4, 5, 6, 7] as const;
@@ -9,54 +9,54 @@ const REGON_VALID_LENGTHS: readonly number[] = [9, 14];
 const REGON_ALLOWED_CHARACTERS: readonly string[] =
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-function validate_regon(regon_candidate: unknown) {
-  if(typeof regon_candidate !== "string")
-    return err(invalid_type(regon_candidate))
+function validateRegon(regonCandidate: unknown) {
+  if(typeof regonCandidate !== "string")
+    return err(invalidType(regonCandidate))
   
-  if(!has_valid_length(regon_candidate))
-    return err(invalid_length(regon_candidate))
+  if(!hasValidLength(regonCandidate))
+    return err(invalidLength(regonCandidate))
 
-  if (!has_only_digits(regon_candidate))
-    return err(invalid_characters())
+  if (!hasOnlyDigits(regonCandidate))
+    return err(invalidCharacters())
   
-  if (has_only_zeros(regon_candidate))
-    return err(contains_only_zeros())
+  if (hasOnlyZeros(regonCandidate))
+    return err(containsOnlyZeros())
 
   // always verify first control digit (always treating regon as if it was of length 9)
-  const regon_of_length_9_representation = regon_candidate.substring(0, 9)
-  const digits = derive_regon_control_digits(regon_of_length_9_representation, REGON9_WEIGHTS)
+  const regonOfLength9Representation = regonCandidate.substring(0, 9)
+  const digits = deriveRegonControlDigits(regonOfLength9Representation, REGON9_WEIGHTS)
 
-  if (digits.received_control_digit !== digits.calculated_control_digit)
-    return err(control_digit_mismatch({...digits, index: regon_of_length_9_representation.length - 1 }))
+  if (digits.receivedControlDigit !== digits.calculatedControlDigit)
+    return err(controlDigitMismatch({...digits, index: regonOfLength9Representation.length - 1 }))
 
   // optionally, if length is 14, verify second control digit too
-  if(regon_candidate.length === 14)  {
-    const digits_for_regon14 = derive_regon_control_digits(regon_candidate, REGON14_WEIGHTS)
+  if(regonCandidate.length === 14)  {
+    const digitsForRegon14 = deriveRegonControlDigits(regonCandidate, REGON14_WEIGHTS)
 
-    if (digits_for_regon14.received_control_digit !== digits_for_regon14.calculated_control_digit)
-      return err(control_digit_mismatch({...digits_for_regon14, index: regon_candidate.length - 1 }))
+    if (digitsForRegon14.receivedControlDigit !== digitsForRegon14.calculatedControlDigit)
+      return err(controlDigitMismatch({...digitsForRegon14, index: regonCandidate.length - 1 }))
   }
 
-  return ok(regon_candidate)
+  return ok(regonCandidate)
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-function derive_regon_control_digits(regon: string, weights: readonly number[]) {
-    let weighted_sum = 0;
+function deriveRegonControlDigits(regon: string, weights: readonly number[]) {
+    let weightedSum = 0;
     weights.forEach((weight, index) => {
-      const regon_number = Number(regon[index]);
-      weighted_sum += weight * regon_number;
+      const regonNumber = Number(regon[index]);
+      weightedSum += weight * regonNumber;
     })
     
-    const received_control_digit = Number(regon[regon.length - 1]);
-    const calculated_control_digit = weighted_sum % 11 === 10 ? 0 : weighted_sum % 11
+    const receivedControlDigit = Number(regon[regon.length - 1]);
+    const calculatedControlDigit = weightedSum % 11 === 10 ? 0 : weightedSum % 11
 
-    return { received_control_digit, calculated_control_digit }
+    return { receivedControlDigit, calculatedControlDigit }
 }
 
 
-function has_only_digits(regon_candidate: string) {
-  for (const character of regon_candidate) {
+function hasOnlyDigits(regonCandidate: string) {
+  for (const character of regonCandidate) {
     if (!REGON_ALLOWED_CHARACTERS.includes(character))
       return false;
   }
@@ -64,63 +64,63 @@ function has_only_digits(regon_candidate: string) {
   return true
 }
 
-function has_only_zeros(regon_candidate: string) {
-  for (const character of regon_candidate) {
+function hasOnlyZeros(regonCandidate: string) {
+  for (const character of regonCandidate) {
       if(character !== "0") return false
   }
 
   return true
 }
 
-function has_valid_length(regon_candidate: string) {
-  return REGON_VALID_LENGTHS.includes(regon_candidate.length)
+function hasValidLength(regonCandidate: string) {
+  return REGON_VALID_LENGTHS.includes(regonCandidate.length)
 }
 
 // ── errors  ──────────────────────────────────────────────────────────────────
-function invalid_type(regon_candidate: unknown) {
+function invalidType(regonCandidate: unknown) {
   return {
       name: "RegonIsNotString",
       message: "REGON is not of type `string`",
       meta: {
-        expected_type: "string",
-        received_type: typeof regon_candidate
+        expectedType: "string",
+        receivedType: typeof regonCandidate
       }
     } as const
 }
 
-function invalid_length(regon: string) {
+function invalidLength(regon: string) {
   return {
     name: "RegonInvalidLength",
     message: "REGON has invalid length",
     meta: {
-      expected_length: REGON_VALID_LENGTHS,
-      received_length: regon.length
+      expectedLength: REGON_VALID_LENGTHS,
+      receivedLength: regon.length
     }
   } as const
 }
 
-function invalid_characters() {
+function invalidCharacters() {
   return {
     name: "RegonContainsNonDigits",
     message: "REGON contains characters that are not digits",
   } as const
 }
 
-function contains_only_zeros() {
+function containsOnlyZeros() {
   return {
     name: "RegonContainsOnlyZeros",
     message: "Received REGON contains only digits equal to zero 0",
   } as const
 }
 
-function control_digit_mismatch(control_digits: { calculated_control_digit: number; received_control_digit: number, index: number },) {
+function controlDigitMismatch(controlDigit: { calculatedControlDigit: number; receivedControlDigit: number, index: number },) {
   return {
     name: "RegonControlDigitMismatch",
     message: "Received REGON control digit does not match calculated control digit",
     meta: {
-      expected_control_digit: control_digits.calculated_control_digit,
-      received_control_digit: control_digits.received_control_digit,
-      control_digit_index: control_digits.index,
+      expectedControlDigit: controlDigit.calculatedControlDigit,
+      receivedControlDigit: controlDigit.receivedControlDigit,
+      controlDigitIndex: controlDigit.index,
     }
   } as const
 }

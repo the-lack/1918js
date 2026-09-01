@@ -1,7 +1,7 @@
 import { expect, describe as suite } from "bun:test";
 import fc from 'fast-check';
 import { $ } from "./lib/bdd-utility"
-import { validate_nip } from "./nip";
+import { validateNip } from "./nip";
 import { get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities";
 
 const { scenario: scenario, given, when, then } = $
@@ -26,7 +26,7 @@ suite("parse_nip", () => {
 
       when `validated`
         (
-          test => validate_nip(test.input)
+          test => validateNip(test.input)
         ),
 
       then `nip is rejected for being non-string`
@@ -37,8 +37,8 @@ suite("parse_nip", () => {
               name: "NipIsNotString",
               message: "NIP is not of type `string`",
               meta: {
-                expected_type: "string",
-                received_type: typeof test.input
+                expectedType: "string",
+                receivedType: typeof test.input
               }
             }
           })
@@ -55,7 +55,7 @@ suite("parse_nip", () => {
 
        when `string is parsed as nip`
        (
-         test => validate_nip(test.input)
+         test => validateNip(test.input)
        ),
        
       then `string is rejected for being too long`
@@ -67,8 +67,8 @@ suite("parse_nip", () => {
                 name: "NipInvalidLength",
                 message: "NIP has invalid length",
                 meta: {
-                  expected_length: 10,
-                  received_length: test.input.length
+                  expectedLength: 10,
+                  receivedLength: test.input.length
                 }
               }
          })          
@@ -84,7 +84,7 @@ suite("parse_nip", () => {
 
     when `nip is parsed`
     (
-      test => validate_nip(test.input)
+      test => validateNip(test.input)
     ),
 
     then `nip is rejected`
@@ -95,8 +95,8 @@ suite("parse_nip", () => {
           name: "NipInvalidLength",
           message: "NIP has invalid length",
           meta: {
-            expected_length: 10,
-            received_length: test.input.length
+            expectedLength: 10,
+            receivedLength: test.input.length
           }
         }
       })       
@@ -113,7 +113,7 @@ suite("parse_nip", () => {
 
     when `nip is validated`
       (
-        ({ input }) => validate_nip(input)
+        ({ input }) => validateNip(input)
       ),
 
     then `nip is rejected for containing only 0s`
@@ -139,7 +139,7 @@ suite("parse_nip", () => {
 
       when `input is parsed`
       (
-        test => validate_nip(test.input)
+        test => validateNip(test.input)
       ),
     
       then `input is rejected for containing non-digits`
@@ -164,7 +164,7 @@ suite("parse_nip", () => {
 
       when `nip is parsed`
       (
-         test => validate_nip(test.input.tampered)
+         test => validateNip(test.input.tampered)
       ),
       then `nip is rejected`
       (
@@ -174,9 +174,9 @@ suite("parse_nip", () => {
           name: "NipControlDigitMismatch",
           message: "Received NIP control digit does not match calculated control digit",
           meta: {
-            control_digit_index: 9,
-            expected_control_digit: test.input.original_control_digit,
-            received_control_digit: test.input.received_control_digit,
+            controlDigitIndex: 9,
+            expectedControlDigit: test.input.original_control_digit,
+            receivedControlDigit: test.input.received_control_digit,
           }
         }
       })         
@@ -193,7 +193,7 @@ suite("parse_nip", () => {
 
     when `nip is parsed`
       (
-        test => validate_nip(test.input)
+        test => validateNip(test.input)
       ),
 
     then `nip is rejected for invalid control digit equal 10`
@@ -218,7 +218,7 @@ suite("parse_nip", () => {
 
     when `nip is parsed`
     (
-      test => validate_nip(test.input)
+      test => validateNip(test.input)
     ),
 
     then `nip is accepted`
