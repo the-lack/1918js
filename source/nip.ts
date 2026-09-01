@@ -1,4 +1,4 @@
-import { err, ok } from "./lib/result"
+import { err, ok, type Result } from "./lib/result"
 
 export { validateNip };
 
@@ -10,7 +10,7 @@ const NIP_WEIGHTS: readonly number[] = [6, 5, 7, 2, 3, 4, 5, 6, 7]
 const NIP_ALLOWED_CHARACTERS: readonly string[] =
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-function validateNip(nipCandidate: unknown) {
+function validateNip(nipCandidate: unknown): Result<string, Readonly<NipError>> {
 
   if (typeof nipCandidate !== "string")
     return err(invalidType(nipCandidate))
@@ -23,7 +23,7 @@ function validateNip(nipCandidate: unknown) {
 
   if (hasOnlyZeros(nipCandidate))
     return err(containsOnlyZeros())
-    
+
   const { calculatedControlDigit, receivedControlDigit } =
     deriveNipControlDigit(nipCandidate);
 
@@ -80,13 +80,13 @@ function hasOnlyZeros(nipCandidate: string) {
 // ── errors  ──────────────────────────────────────────────────────────────────
 function invalidType(nipCandidate: unknown) {
   return {
-      name: "NipIsNotString",
-      message: "NIP is not of type `string`",
-      meta: {
-        expectedType: "string",
-        receivedType: typeof nipCandidate
-      }
-    } as const
+    name: "NipIsNotString",
+    message: "NIP is not of type `string`",
+    meta: {
+      expectedType: "string",
+      receivedType: typeof nipCandidate
+    }
+  } as const
 }
 
 function invalidCharacters() {
@@ -136,3 +136,57 @@ function containsOnlyZeros() {
     message: "Received NIP contains only digits equal to zero 0",
   } as const
 }
+
+// ── types ────────────────────────────────────────────────────────────────────
+type NipError =
+  {
+    name: "NipIsNotString",
+    message: "NIP is not of type `string`",
+    meta: {
+      expectedType: "string",
+      receivedType: 
+                    | "number"
+                    | "bigint"
+                    | "boolean"
+                    | "symbol"
+                    | "undefined"
+                    | "object"
+                    | "function"
+                    | "string"
+    }
+  }
+  |
+  {
+    name: "NipInvalidLength",
+    message: "NIP has invalid length",
+    meta: {
+      expectedLength: 10,
+      receivedLength: number
+    }
+  }
+  |
+  {
+    name: "NipContainsNonDigits",
+    message: "NIP contains characters that are not digits"
+  }
+  |
+  {
+    name: "NipContainsOnlyZeros",
+    message: "Received NIP contains only digits equal to zero 0",
+  }
+  |
+  {
+    name: "NipCalculatedControlDigitCannotBeTen",
+    message: "Control digit calculated for NIP cannot equal 10"
+  }
+  |
+  {
+    name: "NipControlDigitMismatch",
+    message: "Received NIP control digit does not match calculated control digit",
+    meta:
+    {
+      expectedControlDigit: number,
+      receivedControlDigit: number,
+      controlDigitIndex: 9,
+    }
+  }

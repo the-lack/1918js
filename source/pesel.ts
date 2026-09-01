@@ -1,4 +1,4 @@
-import { err, ok } from "./lib/result";
+import { err, ok, type Result } from "./lib/result";
 
 export { validatePesel }
 
@@ -8,7 +8,7 @@ const ALLOWED_CHARACTERS: readonly string[] =
 const PESEL_ALLOWED_LENGTH = 11
 const PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1] as const;
 
-function validatePesel(peselCandidate: unknown) {
+function validatePesel(peselCandidate: unknown): Result<string, PeselError> {
 
   if (typeof peselCandidate !== "string")
     return err(invalidType(peselCandidate))
@@ -114,3 +114,52 @@ function controlDigitMismatch(digits: { receivedControlNumber: number, calculate
     }
   } as const
 }
+
+// ── types ────────────────────────────────────────────────────────────────────
+type PeselError =
+  {
+    name: "PeselIsNotString",
+    message: "PESEL is not of type `string`",
+    meta: {
+      expectedType: "string",
+      receivedType:
+      | "number"
+      | "bigint"
+      | "boolean"
+      | "symbol"
+      | "undefined"
+      | "object"
+      | "function"
+      | "string"
+    }
+  }
+  |
+  {
+    name: "PeselHasInvalidLength",
+    message: "PESEL has invalid length",
+    meta: {
+      expectedLength: 11,
+      receivedLength: number
+    }
+  }
+  |
+  {
+    name: "PeselContainsNonDigitCharacters",
+    message: "PESEL contains non-numeric characters"
+  }
+  |
+  {
+    name: "PeselContainsOnlyZeros",
+    message: "Received PESEL contains only digits equal to zero 0",
+  }
+  |
+  {
+    name: "PeselControlDigitMismatch",
+    message: "Calculated control digit does not match one contained in the PESEL",    
+    meta:
+    {
+      expectedControlDigit: number,
+      receivedControlDigit: number,
+      controlDigitIndex: number
+    }
+ }
