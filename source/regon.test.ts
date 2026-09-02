@@ -1,8 +1,6 @@
 import { expect } from "bun:test";
-import { $ } from "./lib/bdd-utility"
+import {  scenario, given, when, then, and  } from "./lib/bdd-utility"
 import { validateRegon } from "./regon";
-
-const { scenario, given, when, then, and } = $;
 
 // ── test data ────────────────────────────────────────────────────────────────
 const example_regon = {

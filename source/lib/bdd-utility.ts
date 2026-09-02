@@ -1,6 +1,13 @@
 import fc from "fast-check";
 import { it, describe } from "bun:test";
 
+const given = make_given()
+const when = make_when()
+const then = make_then()
+const and = make_and()
+
+export { scenario, given, when, then, and }
+
 type MetaData = {
   label: string;
 };
@@ -135,14 +142,6 @@ function make_and() {
     });
   };
 }
-
-export const $ = {
-  scenario,
-  given: make_given(),
-  when: make_when(),
-  then: make_then(),
-  and: make_and()
-};
 
 type GivenValue<G> =
   G extends GivenStep<infer T>
