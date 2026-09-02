@@ -22,7 +22,7 @@ type GivenFcStep<GivenReturnedArbitraryType> = {
 type GivenSuchAsStep<GivenSuchAsReturnType> = {
   kind: "given_such_as";
   label: string;
-  fn: (_: never) => GivenSuchAsReturnType[];
+  fn: (_: never) => Readonly<GivenSuchAsReturnType[]>;
 };
 
 type WhenStep<GivenReturnType, WhenReturnType> = {
@@ -74,7 +74,7 @@ function make_given() {
     });
 
     given.such_as = <GivenSuchAsReturnType>(
-      fn: (_: never) => GivenSuchAsReturnType[],
+      fn: (_: never) => Readonly<GivenSuchAsReturnType[]>,
     ): GivenSuchAsStep<GivenSuchAsReturnType> & MetaData => ({
       kind: "given_such_as",
       label,

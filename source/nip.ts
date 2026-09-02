@@ -1,8 +1,9 @@
 import { err, ok, type Result } from "./lib/result"
 
+// ── module api ───────────────────────────────────────────────────────────────
 export { validateNip };
 
-// ── functional implementation ────────────────────────────────────────────────
+// ── implementation ───────────────────────────────────────────────────────────
 const NIP_MODULO = 11
 const NIP_CONTROL_DIGIT_INDEX = 9
 const NIP_ALLOWED_LENGTH = 10
@@ -77,7 +78,7 @@ function hasOnlyZeros(nipCandidate: string) {
   return true
 }
 
-// ── errors  ──────────────────────────────────────────────────────────────────
+// ── errors ───────────────────────────────────────────────────────────────────
 function invalidType(nipCandidate: unknown) {
   return {
     name: "NipIsNotString",

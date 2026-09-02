@@ -6,7 +6,7 @@ import { get_fc_numeric_string, get_fc_string_with_at_least_one_non_digit } from
 
 const { scenario, given, when, then, and } = $
 
-// ── Test data ────────────────────────────────────────────────────────────────
+// ── test data ────────────────────────────────────────────────────────────────
 const example_pesel = {
   thats_valid1: "44051401458",
   thats_valid2: "98112868513",
@@ -33,7 +33,7 @@ const example_pesel = {
   thats_not_a_string: fc.anything().filter(element => typeof element !== "string")
 } as const;
 
-// ──── Test suite ─────────────────────────────────────────────────────────────
+// ──── test suite ─────────────────────────────────────────────────────────────
 scenario `rejects empty input`
 (
     given `empty input`

@@ -1,194 +1,184 @@
-import { expect, describe as suite } from "bun:test";
+import { expect } from "bun:test";
 import fc from 'fast-check';
 import { $ } from "./lib/bdd-utility"
 import { validateNip } from "./nip";
 import { get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities";
 
-const { scenario: scenario, given, when, then } = $
+const { scenario: scenario, given, when, then, and } = $
 
-/* -------------------------------------------------------------------------- */
-/*                               Test Suite                                   */
-/* -------------------------------------------------------------------------- */
+// ── test data ────────────────────────────────────────────────────────────────
+const example_nip = {
+  set_of_valid_examples: ["7791011327", "7811897358", "5252546391"],
 
-const nips = {
-  valid_examples: () => ["7791011327", "7811897358", "5252546391"] as const,
+  thats_has_length_above_10: fc.string({ minLength: 10 + 1 }),
+  thats_has_length_below_10: fc.string({ maxLength: 10 - 1 }),
+  thats_zeroed_out: "0".repeat(10),
+
+  that_contains_at_least_one_non_numeric_character: get_fc_string_with_at_least_one_non_digit()
+          .filter(value => value.length === 10),
+
+
+  where_calculated_control_digit_equals_10: "9000000000",
+  set_of_non_string_values: [undefined, 80082, 67, {}] as unknown[],
+
+  get set_with_invalid_control_digits() {
+    return this.set_of_valid_examples.map(tamper_nip_control_digit)
+  } 
 }
 
-// ──── Test suite for shared kernel of functional and value object implementations ────
-suite("parse_nip", () => {
-  scenario `rejecting non-string value`
-    (
-      given `non-string nip value`.
-        such_as
-        (
-          _ => [undefined, 80082, 67, {}] as unknown[]
-        ),
-
-      when `validated`
-        (
-          test => validateNip(test.input)
-        ),
-
-      then `nip is rejected for being non-string`
-        (
-          test => expect(test.result).toStrictEqual({
-            ok: false,
-            error: {
-              name: "NipIsNotString",
-              message: "NIP is not of type `string`",
-              meta: {
-                expectedType: "string",
-                receivedType: typeof test.input
-              }
-            }
-          })
-        )
-    )
-
-  scenario `too long input`
-    (
-      given `string of length > 10`
-        .from_fc
-        (
-          _ => fc.string({ minLength: 10 + 1 })
-        ),
-
-       when `string is parsed as nip`
-       (
-         test => validateNip(test.input)
-       ),
-       
-      then `string is rejected for being too long`
-      (
-        test => expect(test.result).
-          toStrictEqual({
-              ok: false,
-              error: {
-                name: "NipInvalidLength",
-                message: "NIP has invalid length",
-                meta: {
-                  expectedLength: 10,
-                  receivedLength: test.input.length
-                }
-              }
-         })          
-      )
-    )    
-        
-  scenario `too short input`
+// ── test suite ───────────────────────────────────────────────────────────────
+scenario `rejecting non-string value`
   (
-    given `nip number of length < 10`.from_fc
-    (
-      _ =>  fc.string({ maxLength: 10 - 1 })
-    ),
+    given `non-string nip value`.
+      such_as
+      (
+        _ => example_nip.set_of_non_string_values
+      ),
 
-    when `nip is parsed`
-    (
-      test => validateNip(test.input)
-    ),
+    when `validated`
+      (
+        test => validateNip(test.input)
+      ),
 
-    then `nip is rejected`
-    (
-      test => expect(test.result).toStrictEqual({
-        ok: false,
-        error: {
-          name: "NipInvalidLength",
-          message: "NIP has invalid length",
+    then `nip is rejected for being non-string`
+      (
+        test => expect(test.result.ok).toBe(false)
+      ),
+
+    and `the reason is invalid type (not string)`
+      (
+        test => expect(test.result.error).toStrictEqual({
+          name: "NipIsNotString",
+          message: "NIP is not of type `string`",
           meta: {
-            expectedLength: 10,
-            receivedLength: test.input.length
+            expectedType: "string",
+            receivedType: typeof test.input
           }
-        }
-      })       
-    )
+        })
+      )
   )
 
+scenario`rejecting input with length other than 10`
+  (
+    given `string of length > 10`
+      .from_fc
+      (
+        _ => fc.oneof(example_nip.thats_has_length_above_10,
+                      example_nip.thats_has_length_below_10)
+      ),
 
-  scenario `rejecting nip containing only 0s`
+    when `validated`
+      (
+        test => validateNip(test.input)
+      ),
+
+    then `input is rejected for being too long`
+      (
+        test => expect(test.result.ok).toBe(false)
+      ),
+
+    and `the reason is invalid length`
+      (
+        test => expect(test.result.error).
+          toStrictEqual({
+            name: "NipInvalidLength",
+            message: "NIP has invalid length",
+            meta: {
+              expectedLength: 10,
+              receivedLength: test.input.length
+            }
+          })
+      )
+  )
+
+scenario`rejecting nip containing only 0s`
   (
     given `nip full of zeros`
       (
-        _ => "0".repeat(10)
+        _ => example_nip.thats_zeroed_out
       ),
 
     when `nip is validated`
       (
-        ({ input }) => validateNip(input)
+        test => validateNip(test.input)
       ),
 
     then `nip is rejected for containing only 0s`
       (
-        ({ result }) => {
-          expect(result.ok).toBe(false)
-          expect(result.error).toStrictEqual({
-              name: "NipContainsOnlyZeros",
-              message: "Received NIP contains only digits equal to zero 0",              
+        test => {
+          expect(test.result.ok).toBe(false)
+          expect(test.result.error).toStrictEqual({
+            name: "NipContainsOnlyZeros",
+            message: "Received NIP contains only digits equal to zero 0",
           })
         }
       )
-  )    
+  )
 
-  scenario `non-numeric input with proper length`
+scenario`non-numeric input with proper length`
   (
-      given `non-numeric input`.
+    given `non-numeric input`.
       from_fc
       (
-       _ => get_fc_string_with_at_least_one_non_digit()
-          .filter(value => value.length === 10)
+        _ => example_nip.that_contains_at_least_one_non_numeric_character
       ),
 
-      when `input is parsed`
+    when `input is parsed`
       (
         test => validateNip(test.input)
       ),
-    
-      then `input is rejected for containing non-digits`
+
+    then `input is rejected for containing non-digits`
       (
-       test => expect(test.result).toStrictEqual({
+        test => expect(test.result).toStrictEqual({
           ok: false,
           error: {
             name: "NipContainsNonDigits",
             message: "NIP contains characters that are not digits"
           }
-        })       
-     )     
-  )
-
-  scenario `nips with mismatched control digit`
-  (
-    given `nip with invalid control digit`
-    .such_as
-      (
-      _ => nips.valid_examples().map(tamper_nip_control_digit)
-      ),
-
-      when `nip is parsed`
-      (
-         test => validateNip(test.input.tampered)
-      ),
-      then `nip is rejected`
-      (
-       test => expect(test.result).toStrictEqual({
-        ok: false,
-        error: {
-          name: "NipControlDigitMismatch",
-          message: "Received NIP control digit does not match calculated control digit",
-          meta: {
-            controlDigitIndex: 9,
-            expectedControlDigit: test.input.original_control_digit,
-            receivedControlDigit: test.input.received_control_digit,
-          }
-        }
-      })         
+        })
       )
   )
 
+scenario`nips with mismatched control digit`
+  (
+    given `nip with invalid control digit`
+      .such_as
+      (
+        _ => example_nip.set_with_invalid_control_digits
+      ),
 
-  scenario `rejecting nips where calculated control digit equals 10`
+    when `nip is parsed`
+      (
+        test => validateNip(test.input.tampered)
+      ),
+
+    then `nip is rejected`
+      (
+        test => expect(test.result.ok).toBe(false)
+      ),
+
+    and `the reason is invalid control_digit`
+    (
+        test => expect(test.result.error).toStrictEqual({
+            name: "NipControlDigitMismatch",
+            message: "Received NIP control digit does not match calculated control digit",
+            meta: {
+              controlDigitIndex: 9,
+              expectedControlDigit: test.input.original_control_digit,
+              receivedControlDigit: test.input.received_control_digit,
+          }
+        })
+    )
+      
+  )
+
+
+scenario`rejecting nips where calculated control digit equals 10`
   (
     given `nip where calculated control digit is equal to 10`
       (
-        _ => "9000000000"          
+        _ => example_nip.where_calculated_control_digit_equals_10
       ),
 
     when `nip is parsed`
@@ -197,8 +187,8 @@ suite("parse_nip", () => {
       ),
 
     then `nip is rejected for invalid control digit equal 10`
-     (
-      test => expect(test.result).toStrictEqual({
+      (
+        test => expect(test.result).toStrictEqual({
           ok: false,
           error: {
             name: "NipCalculatedControlDigitCannotBeTen",
@@ -206,36 +196,33 @@ suite("parse_nip", () => {
           }
         })
       )
-   )
+  )
 
-  scenario `accepting valid nips`
+scenario`accepting valid nips`
   (
     given `valid nip (%s)`
-    .such_as
-    (
-      _ => [...nips.valid_examples()]
-    ),
+      .such_as
+      (
+        _ => example_nip.set_of_valid_examples
+      ),
 
     when `nip is parsed`
-    (
-      test => validateNip(test.input)
-    ),
+      (
+        test => validateNip(test.input)
+      ),
 
     then `nip is accepted`
+      (
+        test => expect(test.result.ok).toBe(true)
+      ),
+
+    and `return value matches input`
     (
-      test => expect(test.result).toStrictEqual({
-        ok: true,
-        value: test.input
-      })
+        test => expect(test.result.value).toEqual(test.input)
     )
-  ) 
-})
+  )
 
-
-/* -------------------------------------------------------------------------- */
-/*                                  Helpers                                    */
-/* -------------------------------------------------------------------------- */
-
+// ── helpers ──────────────────────────────────────────────────────────────────
 function tamper_nip_control_digit(nip: string) {
   const nip_array = [...nip];
 

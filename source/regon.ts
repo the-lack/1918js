@@ -1,8 +1,9 @@
 import { err, ok, type Result } from "./lib/result";
 
+// ── module api ───────────────────────────────────────────────────────────────
 export { validateRegon }
 
-// ── functional implementation ────────────────────────────────────────────────
+// ── implementation ───────────────────────────────────────────────────────────
 const REGON9_WEIGHTS: readonly number[] = [8, 9, 2, 3, 4, 5, 6, 7] as const;
 const REGON14_WEIGHTS: readonly number[] = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8] as const;
 const REGON_VALID_LENGTHS: readonly number[] = [9, 14];
@@ -76,7 +77,7 @@ function hasValidLength(regonCandidate: string) {
   return REGON_VALID_LENGTHS.includes(regonCandidate.length)
 }
 
-// ── errors  ──────────────────────────────────────────────────────────────────
+// ── errors ───────────────────────────────────────────────────────────────────
 function invalidType(regonCandidate: unknown) {
   return {
     name: "RegonIsNotString",

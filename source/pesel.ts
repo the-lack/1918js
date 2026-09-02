@@ -1,8 +1,9 @@
 import { err, ok, type Result } from "./lib/result";
 
+// ── module api ───────────────────────────────────────────────────────────────
 export { validatePesel }
 
-// ── functional implementation ────────────────────────────────────────────────
+// ── implementation ───────────────────────────────────────────────────────────
 const ALLOWED_CHARACTERS: readonly string[] =
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const PESEL_ALLOWED_LENGTH = 11
@@ -66,7 +67,7 @@ function derivePeselControlDigit(peselCandidate: string) {
   return { receivedControlNumber, calculatedControlNumber }
 }
 
-// ── errors  ──────────────────────────────────────────────────────────────────
+// ── errors ───────────────────────────────────────────────────────────────────
 function invalidType(peselCandidate: unknown) {
   return {
     name: "PeselIsNotString",
