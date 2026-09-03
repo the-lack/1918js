@@ -23,14 +23,15 @@ const REGON_ALLOWED_CHARACTERS: readonly string[] =
   if (hasOnlyZeros(regonCandidate))
     return err(containsOnlyZeros())
 
-  // always verify first control digit (always treating regon as if it was of length 9)
+  // always verify first control digit
+  // (if regons is of length 9 then keep it. if regon is of length 14 then treat it as 9-length regon)
   const regonOfLength9Representation = regonCandidate.substring(0, 9)
   const digits = deriveRegonControlDigits(regonOfLength9Representation, REGON9_WEIGHTS)
 
   if (digits.receivedControlDigit !== digits.calculatedControlDigit)
     return err(controlDigitMismatch({ ...digits, index: regonOfLength9Representation.length - 1 }))
 
-  // optionally, if length is 14, verify second control digit too
+  // if length is 14 also verify second control digit
   if (regonCandidate.length === 14) {
     const digitsForRegon14 = deriveRegonControlDigits(regonCandidate, REGON14_WEIGHTS)
 
