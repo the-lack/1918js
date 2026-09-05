@@ -4,7 +4,7 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
 - [X] Delete personal notes from the docs pathing
 - [ ] Simplify errors. Pros vs cons
 - [X] Replace type assertions with ts-ignore
-- [ ] Warn developers to always use strings and never numbers cuz leading zeros (in the docs)
+- [X] Warn developers to always use strings and never numbers cuz leading zeros (in the docs)
 
 ### Critical issue
 - [ ] is order of error validation appropariite?

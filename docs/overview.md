@@ -38,7 +38,14 @@ $ deno add 1918js
 
 :::
 
-## Basic usage 
+## Basic usage
+
+::: warning
+Never store polish identifiers as numbers.
+
+This causes issues with leading zeros.
+:::
+
 
 #### REGON example
 ::: info
