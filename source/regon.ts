@@ -1,17 +1,20 @@
-import { err, ok, type Result } from "./lib/result";
+import { err, ok, type Result } from './lib/result';
 
 // ── module api ───────────────────────────────────────────────────────────────
 export { validateRegon }
 
 // ── implementation ───────────────────────────────────────────────────────────
-const REGON9_WEIGHTS: readonly number[] = [8, 9, 2, 3, 4, 5, 6, 7] as const;
-const REGON14_WEIGHTS: readonly number[] = [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8] as const;
-const REGON_VALID_LENGTHS: readonly number[] = [9, 14];
 const REGON_ALLOWED_CHARACTERS: readonly string[] =
-  ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+  ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const REGON_ALLOWED_LENGTHS: readonly number[] = [9, 14];
+const REGON9_WEIGHTS: readonly number[] =
+  [8, 9, 2, 3, 4, 5, 6, 7] as const;
+const REGON14_WEIGHTS: readonly number[] =
+  [2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8] as const;
+const REGON_MODULO = 11
 
-  function validateRegon(regonCandidate: unknown): Result<string, RegonError> {
-  if (typeof regonCandidate !== "string")
+function validateRegon(regonCandidate: unknown): Result<string, RegonError> {
+  if (typeof regonCandidate !== 'string')
     return err(invalidType(regonCandidate))
 
   if (!hasValidLength(regonCandidate))
@@ -51,7 +54,7 @@ function deriveRegonControlDigits(regon: string, weights: readonly number[]) {
   })
 
   const receivedControlDigit = Number(regon[regon.length - 1]);
-  const calculatedControlDigit = weightedSum % 11 === 10 ? 0 : weightedSum % 11
+  const calculatedControlDigit = weightedSum % REGON_MODULO === 10 ? 0 : weightedSum % REGON_MODULO
 
   return { receivedControlDigit, calculatedControlDigit }
 }
@@ -68,23 +71,22 @@ function hasOnlyDigits(regonCandidate: string) {
 
 function hasOnlyZeros(regonCandidate: string) {
   for (const character of regonCandidate) {
-    if (character !== "0") return false
+    if (character !== '0') return false
   }
 
   return true
 }
 
 function hasValidLength(regonCandidate: string) {
-  return REGON_VALID_LENGTHS.includes(regonCandidate.length)
+  return REGON_ALLOWED_LENGTHS.includes(regonCandidate.length)
 }
 
 // ── errors ───────────────────────────────────────────────────────────────────
 function invalidType(regonCandidate: unknown) {
   return {
-    name: "RegonIsNotString",
-    message: "REGON is not of type `string`",
+    code: 'INVALID_TYPE',
     meta: {
-      expectedType: "string",
+      expectedType: 'string',
       receivedType: typeof regonCandidate
     }
   } as const
@@ -92,10 +94,9 @@ function invalidType(regonCandidate: unknown) {
 
 function invalidLength(regon: string) {
   return {
-    name: "RegonInvalidLength",
-    message: "REGON has invalid length",
+    code: 'INVALID_LENGTH',
     meta: {
-      expectedLength: REGON_VALID_LENGTHS,
+      expectedLength: REGON_ALLOWED_LENGTHS,
       receivedLength: regon.length
     }
   } as const
@@ -103,22 +104,19 @@ function invalidLength(regon: string) {
 
 function invalidCharacters() {
   return {
-    name: "RegonContainsNonDigits",
-    message: "REGON contains characters that are not digits",
+    code: 'NOT_NUMERIC',
   } as const
 }
 
 function containsOnlyZeros() {
   return {
-    name: "RegonContainsOnlyZeros",
-    message: "Received REGON contains only digits equal to zero 0",
+    code: 'ZEROED_OUT',
   } as const
 }
 
 function controlDigitMismatch(controlDigit: { calculatedControlDigit: number; receivedControlDigit: number, index: number },) {
   return {
-    name: "RegonControlDigitMismatch",
-    message: "Received REGON control digit does not match calculated control digit",
+    code: 'CONTROL_DIGIT_MISMATCH',
     meta: {
       expectedControlDigit: controlDigit.calculatedControlDigit,
       receivedControlDigit: controlDigit.receivedControlDigit,
@@ -130,25 +128,23 @@ function controlDigitMismatch(controlDigit: { calculatedControlDigit: number; re
 // ── types ────────────────────────────────────────────────────────────────────
 type RegonError =
   {
-    name: "RegonIsNotString",
-    message: "REGON is not of type `string`",
+    code: 'INVALID_TYPE',
     meta: {
-      expectedType: "string",
+      expectedType: 'string',
       receivedType:
-      | "number"
-      | "bigint"
-      | "boolean"
-      | "symbol"
-      | "undefined"
-      | "object"
-      | "function"
-      | "string"
+      | 'number'
+      | 'bigint'
+      | 'boolean'
+      | 'symbol'
+      | 'undefined'
+      | 'object'
+      | 'function'
+      | 'string' // limitation of TS, won't be string
     }
   }
   |
   {
-    name: "RegonInvalidLength",
-    message: "REGON has invalid length",
+    code: 'INVALID_LENGTH',
     meta: {
       expectedLength: readonly number[],
       receivedLength: number
@@ -156,18 +152,15 @@ type RegonError =
   }
   |
   {
-    name: "RegonContainsNonDigits",
-    message: "REGON contains characters that are not digits"
+    code: 'NOT_NUMERIC',
   }
   |
   {
-    name: "RegonContainsOnlyZeros",
-    message: "Received REGON contains only digits equal to zero 0",
+    code: 'ZEROED_OUT',
   }
   |
   {
-    name: "RegonControlDigitMismatch",
-    message: "Received REGON control digit does not match calculated control digit",
+    code: 'CONTROL_DIGIT_MISMATCH',
     meta:
     {
       expectedControlDigit: number,

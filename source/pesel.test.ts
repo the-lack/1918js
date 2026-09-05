@@ -52,8 +52,7 @@ scenario `rejects empty input`
     and `the error provides reason (invalid length), and metadata`
     (
       test => expect(test.result.error).toStrictEqual({
-        name: "PeselHasInvalidLength",
-        message: "PESEL has invalid length",
+        code: "INVALID_LENGTH",
         meta: {
           expectedLength: 11,
           receivedLength: test.input.length
@@ -83,8 +82,7 @@ scenario `rejects non-string input`
     and `the error provides reason (invalid type) as well as metadata`
     (
       test => expect(test.result.error).toStrictEqual({
-        name: "PeselIsNotString",
-        message: "PESEL is not of type `string`",
+        code: "INVALID_TYPE",
         meta: {
           expectedType: "string",
           receivedType: typeof test.input
@@ -129,8 +127,7 @@ scenario `rejecting pesel containing only 0s`
       ({ result }) => {
         expect(result.ok).toBe(false)
         expect(result.error).toStrictEqual({
-            name: "PeselContainsOnlyZeros",
-            message: "Received PESEL contains only digits equal to zero 0",              
+            code: "ZEROED_OUT",
         })
       }
     )
@@ -157,8 +154,7 @@ scenario `rejects non-numeric input`
     and `the reason is containing non-numeric characters`
     (
       test => expect(test.result.error).toStrictEqual({
-        name: "PeselContainsNonDigitCharacters",
-        message: "PESEL contains non-numeric characters"
+        code: "NOT_NUMERIC",
       })
     )
 )
@@ -203,8 +199,7 @@ scenario `rejecting pesel with invalid control number`
     and `the error provides reason (control digit mismatch) and metadata`
     (
       test => expect(test.result.error).toStrictEqual({
-        name: "PeselControlDigitMismatch",
-        message: "Calculated control digit does not match one contained in the PESEL",
+        code: "CONTROL_DIGIT_MISMATCH",
         meta: {
           receivedControlDigit: test.input.current_invalid_control_digit,
           expectedControlDigit: test.input.what_control_digit_should_be,

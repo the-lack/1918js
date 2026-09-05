@@ -46,8 +46,7 @@ scenario `rejecting non-string value`
     and `the reason is invalid type (not string)`
       (
         test => expect(test.result.error).toStrictEqual({
-          name: "NipIsNotString",
-          message: "NIP is not of type `string`",
+          code: "INVALID_TYPE",
           meta: {
             expectedType: "string",
             receivedType: typeof test.input
@@ -79,8 +78,7 @@ scenario`rejecting input with length other than 10`
       (
         test => expect(test.result.error).
           toStrictEqual({
-            name: "NipInvalidLength",
-            message: "NIP has invalid length",
+            code: "INVALID_LENGTH",
             meta: {
               expectedLength: 10,
               receivedLength: test.input.length
@@ -106,8 +104,7 @@ scenario`rejecting nip containing only 0s`
         test => {
           expect(test.result.ok).toBe(false)
           expect(test.result.error).toStrictEqual({
-            name: "NipContainsOnlyZeros",
-            message: "Received NIP contains only digits equal to zero 0",
+            code: "ZEROED_OUT",
           })
         }
       )
@@ -131,8 +128,7 @@ scenario`non-numeric input with proper length`
         test => expect(test.result).toStrictEqual({
           ok: false,
           error: {
-            name: "NipContainsNonDigits",
-            message: "NIP contains characters that are not digits"
+            code: "NON_NUMERIC",
           }
         })
       )
@@ -159,8 +155,7 @@ scenario`nips with mismatched control digit`
     and `the reason is invalid control_digit`
     (
         test => expect(test.result.error).toStrictEqual({
-            name: "NipControlDigitMismatch",
-            message: "Received NIP control digit does not match calculated control digit",
+            code: "CONTROL_DIGIT_MISMATCH",
             meta: {
               controlDigitIndex: 9,
               expectedControlDigit: test.input.original_control_digit,
@@ -189,8 +184,7 @@ scenario`rejecting nips where calculated control digit equals 10`
         test => expect(test.result).toStrictEqual({
           ok: false,
           error: {
-            name: "NipCalculatedControlDigitCannotBeTen",
-            message: "Control digit calculated for NIP cannot equal 10"
+            code: "INVALID_CONTROL_DIGIT",
           }
         })
       )

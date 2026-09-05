@@ -77,8 +77,7 @@ scenario `rejecting invalid type`
     and `the reason is invalid type (not string)`
       (
         test => expect(test.result.error).toStrictEqual({
-          name: "RegonIsNotString",
-          message: "REGON is not of type `string`",
+          code: "INVALID_TYPE",
           meta: {
             expectedType: "string",
             receivedType: typeof test.input
@@ -153,8 +152,7 @@ scenario `rejecting regon with invalid control digit`
           expect(test.result).toMatchObject({
             ok: false,
             error: {
-              name: invalid_control_digit_error().name,
-              message: invalid_control_digit_error().message
+              code: invalid_control_digit_error().code,
             }
           })
       )
@@ -209,8 +207,7 @@ scenario `rejecting regon with any of the digits tampered`
           expect(test.result).toMatchObject({
             ok: false,
             error: {
-              name: invalid_control_digit_error().name,
-              message: invalid_control_digit_error().message
+              code: invalid_control_digit_error().code,
             }
           })
       )
@@ -336,8 +333,7 @@ function invalid_length_error(input: string) {
   return {
     ok: false,
     error: {
-      name: "RegonInvalidLength",
-      message: "REGON has invalid length",
+      code: "INVALID_LENGTH",
       meta: {
         expectedLength: [9, 14],
         receivedLength: input.length
@@ -348,23 +344,20 @@ function invalid_length_error(input: string) {
 
 function invalid_characters_error() {
   return {
-    name: "RegonContainsNonDigits",
-    message: "REGON contains characters that are not digits",
+    code: "NOT_NUMERIC",
   } as const
 }
 
 function invalid_control_digit_error(opts?: { expectedControlDigit: number, receivedControlDigit: number, controlDigitIndex: number }) {
   return {
-    name: "RegonControlDigitMismatch",
-    message: "Received REGON control digit does not match calculated control digit",
+    code: "CONTROL_DIGIT_MISMATCH",
     ...(opts ? { meta: opts } : {})
   }
 }
 
 function contains_only_zeros_error() {
   return {
-    name: "RegonContainsOnlyZeros",
-    message: "Received REGON contains only digits equal to zero 0",
+    code: "ZEROED_OUT",
   } as const
 }
 
