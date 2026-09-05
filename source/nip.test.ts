@@ -17,7 +17,7 @@ const example_nip = {
 
 
   where_calculated_control_digit_equals_10: "9000000000",
-  set_of_non_string_values: [undefined, 80082, 67, {}] as unknown[],
+  set_of_non_string_values: [undefined, 80082, 67, {}],
 
   get set_with_invalid_control_digits() {
     return this.set_of_valid_examples.map(tamper_nip_control_digit)

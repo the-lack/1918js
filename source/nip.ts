@@ -55,14 +55,21 @@ function hasValidLength(nipCandidate: string) {
 }
 
 function deriveNipControlDigit(nipCandidate: string) {
-  const digits = nipCandidate.split("").map(Number);
-  const allDigitsExceptControlDigit = digits.slice(0, NIP_CONTROL_DIGIT_INDEX);
+  const digitsExceptControlDigit = nipCandidate.substring(0, NIP_CONTROL_DIGIT_INDEX).split("").map(Number);
 
-  const weightedSum = allDigitsExceptControlDigit
-    .reduce((acc, digit, index) => acc + digit * NIP_WEIGHTS[index]!, 0);
+  let weightedSum = 0;
+  for(let index = 0; index < digitsExceptControlDigit.length; index++) {
+        const nipDigit  = digitsExceptControlDigit[index]
+        const nipWeight = NIP_WEIGHTS[index]
+
+        if(!nipDigit || !nipWeight) continue
+
+        const product = nipWeight * nipDigit
+        weightedSum += product;
+  }
 
   const calculatedControlDigit = weightedSum % NIP_MODULO;
-  const receivedControlDigit = digits[NIP_CONTROL_DIGIT_INDEX]!;
+  const receivedControlDigit = Number(nipCandidate.charAt(NIP_CONTROL_DIGIT_INDEX));
 
   return {
     calculatedControlDigit,

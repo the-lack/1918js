@@ -72,7 +72,7 @@ scenario `rejects non-string input`
 
     when `non-string input is rejected`
     (
-      test => validatePesel(test.input as any)
+      test => validatePesel(test.input)
     ),
 
     then `input is rejected`
@@ -234,7 +234,8 @@ scenario `accepts valid pesel`
 
     and `returns value that matches the input`
     (
-      test => expect(test.input).toEqual(test.result?.value as any)
+      // @ts-ignore
+      test => expect(test.input).toEqual(test.result?.value)
     )
 )
 

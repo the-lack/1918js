@@ -20,7 +20,7 @@ const example_regon = {
   of_length_9_thats_completely_zeroed_out: "0".repeat(9),
   of_length_14_thats_completely_zeroed_out: "0".repeat(14),
 
-  set_of_non_string_values: [undefined, 80082, 67, {}] as unknown[],
+  set_of_non_string_values: [undefined, 80082, 67, {}],
 
   set_of_invalid_length_values: [0, 9 - 1, 9 + 1, 14 - 1, 14 + 1]
     .map(length => ({ length, value: " ".repeat(length) })),

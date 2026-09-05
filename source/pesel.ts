@@ -8,6 +8,7 @@ const ALLOWED_CHARACTERS: readonly string[] =
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const PESEL_ALLOWED_LENGTH = 11
 const PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1] as const;
+const PESEL_CONTROL_DIGIT_INDEX = 10
 
 function validatePesel(peselCandidate: unknown): Result<string, PeselError> {
 
@@ -25,7 +26,7 @@ function validatePesel(peselCandidate: unknown): Result<string, PeselError> {
 
   const digits = derivePeselControlDigit(peselCandidate)
 
-  if (digits.receivedControlNumber !== digits.calculatedControlNumber) {
+  if (digits.receivedControlDigit !== digits.calculatedControlDigit) {
     return err(controlDigitMismatch(digits))
   }
 
@@ -54,19 +55,25 @@ function hasOnlyDigits(peselCandidate: string) {
 }
 
 function derivePeselControlDigit(peselCandidate: string) {
-  const peselDigits: number[] = peselCandidate.split("").map(Number)
-  const receivedControlNumber = peselDigits.pop()!
+  const peselDigitsExceptControlDigit = peselCandidate.substring(0, PESEL_CONTROL_DIGIT_INDEX).split("").map(Number)
 
-  const weightedSum = peselDigits.reduce((accumulator, currentDigit, index) => {
-    return accumulator + (currentDigit * PESEL_WEIGHTS[index]!)
-  }, 0)
+  let weightedSum = 0;
+  for(let index = 0; index < peselDigitsExceptControlDigit.length; index++) {
+        const peselDigit  = peselDigitsExceptControlDigit[index]
+        const peselWeight = PESEL_WEIGHTS[index]
 
+        if(!peselDigit || !peselWeight) continue
+
+        const product = peselWeight * peselDigit
+        weightedSum += product;
+  }
+  
   const subtrahend = weightedSum % 10;
-  const calculatedControlNumber = subtrahend === 0 ? 0 : 10 - subtrahend;
+  const calculatedControlDigit = subtrahend === 0 ? 0 : 10 - subtrahend;
+  const receivedControlDigit = Number(peselCandidate.charAt(PESEL_CONTROL_DIGIT_INDEX));
 
-  return { receivedControlNumber, calculatedControlNumber }
+  return { receivedControlDigit , calculatedControlDigit }
 }
-
 // ── errors ───────────────────────────────────────────────────────────────────
 function invalidType(peselCandidate: unknown) {
   return {
@@ -104,13 +111,13 @@ function containsOnlyZeros() {
   } as const
 }
 
-function controlDigitMismatch(digits: { receivedControlNumber: number, calculatedControlNumber: number }) {
+function controlDigitMismatch(digits: { receivedControlDigit: number, calculatedControlDigit: number }) {
   return {
     name: "PeselControlDigitMismatch",
     message: "Calculated control digit does not match one contained in the PESEL",
     meta: {
-      receivedControlDigit: digits.receivedControlNumber,
-      expectedControlDigit: digits.calculatedControlNumber,
+      receivedControlDigit: digits.receivedControlDigit,
+      expectedControlDigit: digits.calculatedControlDigit,
       controlDigitIndex: PESEL_ALLOWED_LENGTH - 1,
     }
   } as const
