@@ -1,6 +1,11 @@
 # Log
 Dirty storage of TODOs, ideas, issues and thoughts that come up during project development.
 
+- [X] Delete personal notes from the docs pathing
+- [ ] Simplify errors. Pros vs cons
+- [X] Replace type assertions with ts-ignore
+- [ ] Warn developers to always use strings and never numbers cuz leading zeros (in the docs)
+
 ### Critical issue
 - [ ] is order of error validation appropariite?
   - [ ] PESEL
@@ -35,14 +40,13 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
     - [x] nip
     - [X] pesel
 
-- [ ] Make source code copy-pasteable. Shadcn type beat implementation
-- [ ] Create documentation page. Document:
-        - [ ] Code samples
-        - [ ] Possible errors for each validator
-        - [ ] VOs and how to use them correctly 
-        - [ ] Install steps
-        - [ ] Example with a Zod Schema + catch all implementation
-        - [ ] Throwing vs result
+- [X] Create documentation page. Document:
+        - [X] Code samples
+        - [X] Possible errors for each validator
+        - [X] VOs and how to use them correctly 
+        - [X] Install steps
+        - [X] Example with a Zod Schema + catch all implementation
+        - [X] Throwing vs result
 
 - [X] Add all-zero edge case check for:
     - [x] PESEL 
@@ -54,7 +58,7 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
     - [X] NIP
     - [X] REGON
 
-- [ ] Make API camelCased because JavaScript conventions and yada yada
+- [X] Make API camelCased because JavaScript conventions and yada yada
 
 # Docs
 - [x] Add license
@@ -67,16 +71,6 @@ Dirty storage of TODOs, ideas, issues and thoughts that come up during project d
 - [ ] Add unwrap to the Result
 - [ ] Extract testing utils to beautestiful
 - [X] Add "AND" syntax to BDD
-- [ ] How can we stop having 20/30 fucking file in the root directory.
-      Single config.ts that contains a defineConfigObject that serializes the files to:
-       vite.config.ts, vitest.config.ts all type safe and good and chill :)
-
-# Maybe?
-  input => result =>
-    expect(result).toEqual(invalid_length_error(input))
-
-- these should be named ({ result, input })
-(result, input) => expect(result).toEqual(invalid_length_error())
 
 # Typing?
 
@@ -137,9 +131,8 @@ need to think about whether then should be able to express the intended/future r
 too many examples
 
 # Make each "AND" statement narrow the type for next one!!! very smart :)
-
-- [ ] Fix the runtime assertion ! issues
+- [X] Fix the runtime assertion ! issues
 - [ ] Code execution should happen at test execution and not scenario registration
 - [ ] When should you refactor tests during development?
 - [ ] debug statement that you can put on top of your test scenario instead of logging manually
-- [ ] vitest leftover in nip tests
+- [x] vitest leftover in nip tests
