@@ -43,6 +43,7 @@
   "license": "MIT",
   "scripts": {
     "works": "git clean -f -d -X && bun install --frozen-lockfile && tsc && bun test --concurrent --randomize --max-concurrency=4 --parallel --coverage && bun docs:build",
+    "publish": "bun tsdown && cd dist && npm publish .",
     "docs:dev": "vitepress dev documentation",
     "docs:build": "vitepress build documentation",
     "docs:preview": "vitepress preview documentation",
