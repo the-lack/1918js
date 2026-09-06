@@ -123,7 +123,17 @@ scenario `rejecting for non-digit characters`
 
     then `input is rejected for having non-digit characters`
       (
-        test => expect(test.result).toStrictEqual({ ok: false, error: invalid_characters_error() })
+        test => expect(test.result).toStrictEqual({
+            ok: false,
+            error:  {
+              code: "NOT_NUMERIC",
+              meta: {
+                invalidCharacters: Array.from(test.input)
+                  .map((character, index) => ({ character, index }))
+                  .filter(value => isNaN(parseInt(value.character)))
+              }      
+            }
+        })
       )
   )
 
@@ -342,11 +352,18 @@ function invalid_length_error(input: string) {
   } as const;
 }
 
-function invalid_characters_error() {
-  return {
-    code: "NOT_NUMERIC",
-  } as const
-}
+// function invalid_characters_error(invalidCharacters: { character: string, index: number}) {
+//   return
+//     {
+//     code: "NOT_NUMERIC",
+//     meta: {
+//       invalidCharacters: Array.from(test.input)
+//         .map((character, index) => ({ character, index }))
+//         .filter(value => isNaN(parseInt(value.character)))
+//     }      
+//   }
+//   as const
+// }
 
 function invalid_control_digit_error(opts?: { expectedControlDigit: number, receivedControlDigit: number, controlDigitIndex: number }) {
   return {

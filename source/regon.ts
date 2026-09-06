@@ -60,8 +60,10 @@ function validateRegon(regonCandidate: unknown): Result<string, RegonError> {
   if (!hasValidLength(regonCandidate))
     return err(invalidLength(regonCandidate))
 
-  if (!hasOnlyDigits(regonCandidate))
-    return err(invalidCharacters())
+  const { hasOnlyDigits, invalidCharacters } = checkIfHasOnlyDigits(regonCandidate)
+
+  if (!hasOnlyDigits)
+    return err(notNumeric(invalidCharacters));
 
   if (hasOnlyZeros(regonCandidate))
     return err(containsOnlyZeros())
@@ -100,13 +102,19 @@ function deriveRegonControlDigits(regon: string, weights: readonly number[]) {
 }
 
 
-function hasOnlyDigits(regonCandidate: string) {
-  for (const character of regonCandidate) {
-    if (!REGON_ALLOWED_CHARACTERS.includes(character))
-      return false;
-  }
+function checkIfHasOnlyDigits(regonCandidate: string) {
+  let invalidCharacters: { character: string, index: number }[] = []
+  let hasOnlyDigits = true;
 
-  return true
+  Array.from(regonCandidate)
+    .forEach((character, index) => {
+      if (!REGON_ALLOWED_CHARACTERS.includes(character)) {
+        invalidCharacters.push({ character, index })
+        hasOnlyDigits = false
+      }
+    });
+
+  return { hasOnlyDigits, invalidCharacters }
 }
 
 function hasOnlyZeros(regonCandidate: string) {
@@ -142,9 +150,12 @@ function invalidLength(regon: string) {
   } as const
 }
 
-function invalidCharacters() {
+function notNumeric(invalidCharacters: { character: string, index: number}[]) {
   return {
     code: 'NOT_NUMERIC',
+    meta: {
+      invalidCharacters
+    }
   } as const
 }
 
@@ -193,6 +204,11 @@ type RegonError =
   |
   {
     code: 'NOT_NUMERIC',
+    meta: {
+      invalidCharacters: { character: string, index: number}[]
+    }
+
+    
   }
   |
   {

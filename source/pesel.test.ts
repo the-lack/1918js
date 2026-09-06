@@ -155,6 +155,11 @@ scenario `rejects non-numeric input`
     (
       test => expect(test.result.error).toStrictEqual({
         code: "NOT_NUMERIC",
+        meta: {
+          invalidCharacters: Array.from(test.input)
+            .map((character, index) => ({ character, index }))
+            .filter(value => isNaN(parseInt(value.character)))
+        }
       })
     )
 )

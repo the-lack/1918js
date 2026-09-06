@@ -112,8 +112,8 @@ scenario`rejecting nip containing only 0s`
 
 scenario`non-numeric input with proper length`
   (
-    given `non-numeric input`.
-      from_fc
+    given `non-numeric input`
+      .from_fc
       (
         _ => example_nip.that_contains_at_least_one_non_numeric_character
       ),
@@ -125,10 +125,15 @@ scenario`non-numeric input with proper length`
 
     then `input is rejected for containing non-digits`
       (
-        test => expect(test.result).toStrictEqual({
+        test =>  expect(test.result).toStrictEqual({
           ok: false,
           error: {
-            code: "NON_NUMERIC",
+            code: "NOT_NUMERIC",
+            meta: {
+              invalidCharacters: Array.from(test.input)
+                .map((character, index) => ({ character, index }))
+                .filter(value => isNaN(parseInt(value.character)))
+            }
           }
         })
       )

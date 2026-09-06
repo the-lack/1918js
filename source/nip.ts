@@ -66,8 +66,10 @@ function validateNip(nipCandidate: unknown): Result<string, Readonly<NipError>> 
   if (!hasValidLength(nipCandidate))
     return err(invalidLength(nipCandidate));
 
-  if (!hasOnlyDigits(nipCandidate))
-    return err(invalidCharacters());
+  const { hasOnlyDigits, invalidCharacters } = checkIfHasOnlyDigits(nipCandidate)
+
+  if (!hasOnlyDigits)
+    return err(hasNonNumericCharacters(invalidCharacters));
 
   if (hasOnlyZeros(nipCandidate))
     return err(containsOnlyZeros())
@@ -91,13 +93,19 @@ function validateNip(nipCandidate: unknown): Result<string, Readonly<NipError>> 
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-function hasOnlyDigits(nipCandidate: string) {
-  for (const character of nipCandidate) {
-    if (!NIP_ALLOWED_CHARACTERS.includes(character))
-      return false;
-  }
+function checkIfHasOnlyDigits(nipCandidate: string) {
+  let invalidCharacters: { character: string, index: number }[] = []
+  let hasOnlyDigits = true;
 
-  return true
+  Array.from(nipCandidate)
+    .forEach((character, index) => {
+      if (!NIP_ALLOWED_CHARACTERS.includes(character)) {
+        invalidCharacters.push({ character, index })
+        hasOnlyDigits = false
+      }
+    });
+
+  return { hasOnlyDigits, invalidCharacters }
 }
 
 function hasValidLength(nipCandidate: string) {
@@ -146,9 +154,12 @@ function invalidType(nipCandidate: unknown) {
   } as const
 }
 
-function invalidCharacters() {
+function hasNonNumericCharacters(invalidCharacters: { character: string, index: number }[]) {
   return {
-    code: 'NON_NUMERIC',
+    code: 'NOT_NUMERIC',
+    meta: {
+      invalidCharacters
+    }
   } as const
 }
 
@@ -216,7 +227,8 @@ type NipError =
   }
   |
   {
-    code: 'NON_NUMERIC',
+    code: 'NOT_NUMERIC',
+    meta: { invalidCharacters: { character: string, index: number }[] }
   }
   |
   {

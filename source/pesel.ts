@@ -60,8 +60,10 @@ function validatePesel(peselCandidate: unknown): Result<string, PeselError> {
   if (!hasValidLength(peselCandidate))
     return err(invalidLength(peselCandidate))
 
-  if (!hasOnlyDigits(peselCandidate))
-    return err(notNumeric())
+  const { hasOnlyDigits, invalidCharacters } = checkIfHasOnlyDigits(peselCandidate)
+
+ if (!hasOnlyDigits)
+    return err(notNumeric(invalidCharacters))
 
   if (hasOnlyZeros(peselCandidate))
     return err(containsOnlyZeros())
@@ -88,33 +90,41 @@ function hasOnlyZeros(peselCandidate: string) {
   return true
 }
 
-function hasOnlyDigits(peselCandidate: string) { 
-  for (const character of peselCandidate) {
-    if (!PESEL_ALLOWED_CHARACTERS.includes(character))
-      return false
-  }
-  return true
+
+function checkIfHasOnlyDigits(peselCandidate: string) {
+  let invalidCharacters: { character: string, index: number }[] = []
+  let hasOnlyDigits = true;
+
+  Array.from(peselCandidate)
+    .forEach((character, index) => {
+      if (!PESEL_ALLOWED_CHARACTERS.includes(character)) {
+        invalidCharacters.push({ character, index })
+        hasOnlyDigits = false
+      }
+    });
+
+  return { hasOnlyDigits, invalidCharacters }
 }
 
 function derivePeselControlDigit(peselCandidate: string) {
   const peselDigitsExceptControlDigit = peselCandidate.substring(0, PESEL_CONTROL_DIGIT_INDEX).split('').map(Number)
 
   let weightedSum = 0;
-  for(let index = 0; index < peselDigitsExceptControlDigit.length; index++) {
-        const peselDigit  = peselDigitsExceptControlDigit[index]
-        const peselWeight = PESEL_WEIGHTS[index]
+  for (let index = 0; index < peselDigitsExceptControlDigit.length; index++) {
+    const peselDigit = peselDigitsExceptControlDigit[index]
+    const peselWeight = PESEL_WEIGHTS[index]
 
-        if(!peselDigit || !peselWeight) continue
+    if (!peselDigit || !peselWeight) continue
 
-        const product = peselWeight * peselDigit
-        weightedSum += product;
+    const product = peselWeight * peselDigit
+    weightedSum += product;
   }
-  
+
   const subtrahend = weightedSum % PESEL_MODULO;
   const calculatedControlDigit = subtrahend === 0 ? 0 : 10 - subtrahend;
   const receivedControlDigit = Number(peselCandidate.charAt(PESEL_CONTROL_DIGIT_INDEX));
 
-  return { receivedControlDigit , calculatedControlDigit }
+  return { receivedControlDigit, calculatedControlDigit }
 }
 // ── errors ───────────────────────────────────────────────────────────────────
 function invalidType(peselCandidate: unknown) {
@@ -137,9 +147,12 @@ function invalidLength(peselCandidate: string) {
   } as const
 }
 
-function notNumeric() {
+function notNumeric(invalidCharacters: { character: string, index: number }[]) {
   return {
     code: 'NOT_NUMERIC',
+    meta: {
+      invalidCharacters
+    }
   } as const
 }
 
@@ -188,6 +201,12 @@ type PeselError =
   |
   {
     code: 'NOT_NUMERIC',
+    meta: {
+      invalidCharacters: {
+        character: string,
+        index: number
+      }[]
+    }
   }
   |
   {
@@ -202,4 +221,4 @@ type PeselError =
       receivedControlDigit: number,
       controlDigitIndex: number
     }
- }
+  }
