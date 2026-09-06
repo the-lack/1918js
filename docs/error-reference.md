@@ -4,169 +4,133 @@ outline: "deep"
 
 # Error reference
 
-Validation is performed in the order errors are presented.
+Validation is performed in the order errors are presented below.
 
-Only one error at a time is returned.
+Only one error is returned at a time.
 
-Some errors provide additional information (metadata) regarding the error.
+If multiple validation rules are violated, the first encountered error is returned.
+
+Some errors include additional information in the form of metadata (`meta`).
 
 ## NIP errors
 
 ```ts
-type NipError =
-  {
-    name: "NipIsNotString",
-    message: "NIP is not of type `string`",
-    meta: {
-      expectedType: "string",
-      receivedType: 
-                    | "number"
-                    | "bigint"
-                    | "boolean"
-                    | "symbol"
-                    | "undefined"
-                    | "object"
-                    | "function"
-                    | "string"
-    }
-  }
-  |
-  {
-    name: "NipInvalidLength",
-    message: "NIP has invalid length",
-    meta: {
-      expectedLength: 10,
-      receivedLength: number
-    }
-  }
-  |
-  {
-    name: "NipContainsNonDigits",
-    message: "NIP contains characters that are not digits"
-  }
-  |
-  {
-    name: "NipContainsOnlyZeros",
-    message: "Received NIP contains only digits equal to zero 0",
-  }
-  |
-  {
-    name: "NipCalculatedControlDigitCannotBeTen",
-    message: "Control digit calculated for NIP cannot equal 10"
-  }
-  |
-  {
-    name: "NipControlDigitMismatch",
-    message: "Received NIP control digit does not match calculated control digit",
-    meta:
-    {
-      expectedControlDigit: number,
-      receivedControlDigit: number,
-      controlDigitIndex: 9,
-    }
-  }
+declare const input: unknown;
+declare const log: Function;
+
+const result = validateNip(input);
+
+if (!result.ok) {
+ let error = result.error
+
+ switch (error.code) {
+   case 'INVALID_TYPE':
+      log('Input is of type: ', error.meta.receivedType)
+      log('Should be: ', error.meta.expectedType)
+      break;
+
+   case 'INVALID_LENGTH':
+      log('Input is of length: ', error.meta.receivedLength)
+      log('Should be of length: ', error.meta.expectedLength)
+      break;
+
+   case 'NOT_NUMERIC':
+     log('Input contains non-numeric characters');
+     break;
+
+   case 'ZEROED_OUT':
+     log('Input contains only zeros. Do not try to trick us.');
+     break;
+
+   case 'INVALID_CONTROL_DIGIT':
+     log('Control number derived from weighted sum of all digits is invalid');
+     log('This means control number is a 2-digit number (e.g. 10)');
+     log('This is not allowed as control number has to be single digit');
+     break;
+
+   case 'CONTROL_DIGIT_MISMATCH':
+     log('Input contains invalid control digit: ', error.meta.receivedControlDigit);
+     log('It should be: ', error.meta.expectedControlDigit);
+     log('Control digit position is: ', error.meta.controlDigitIndex + 1);
+     break;
+ }
+}
 ```
 
 ## REGON errors
 
 ```ts
-type RegonError =
-  {
-    name: "RegonIsNotString",
-    message: "REGON is not of type `string`",
-    meta: {
-      expectedType: "string",
-      receivedType:
-      | "number"
-      | "bigint"
-      | "boolean"
-      | "symbol"
-      | "undefined"
-      | "object"
-      | "function"
-      | "string"
-    }
-  }
-  |
-  {
-    name: "RegonInvalidLength",
-    message: "REGON has invalid length",
-    meta: {
-      expectedLength: readonly number[],
-      receivedLength: number
-    }
-  }
-  |
-  {
-    name: "RegonContainsNonDigits",
-    message: "REGON contains characters that are not digits"
-  }
-  |
-  {
-    name: "RegonContainsOnlyZeros",
-    message: "Received REGON contains only digits equal to zero 0",
-  }
-  |
-  {
-    name: "RegonControlDigitMismatch",
-    message: "Received REGON control digit does not match calculated control digit",
-    meta:
-    {
-      expectedControlDigit: number,
-      receivedControlDigit: number,
-      controlDigitIndex: number,
-    }
-  }
+declare const input: unknown;
+declare const log: Function;
+
+const result = validateRegon(input);
+
+if (!result.ok) {
+ let error = result.error
+
+ switch (error.code) {
+   case 'INVALID_TYPE':
+      log('Input is of type: ', error.meta.receivedType)
+      log('Should be: ', error.meta.expectedType)
+      break;
+
+   case 'INVALID_LENGTH':
+      log('Input is of length: ', error.meta.receivedLength)
+      log('Should be of length: ', error.meta.expectedLength)
+      break;
+
+   case 'NOT_NUMERIC':
+     log('Input contains non-numeric characters');
+     break;
+
+   case 'ZEROED_OUT':
+     log('Input contains only zeros. Do not try to trick us.');
+     break;
+
+   case 'CONTROL_DIGIT_MISMATCH':
+     log('Input contains invalid control digit: ', error.meta.receivedControlDigit);
+     log('It should be: ', error.meta.expectedControlDigit);
+     log('Control digit position is: ', error.meta.controlDigitIndex + 1);
+     break;
+ }
+}
 ```
 
 ## PESEL errors
 
 ```ts
-type PeselError =
-  {
-    name: "PeselIsNotString",
-    message: "PESEL is not of type `string`",
-    meta: {
-      expectedType: "string",
-      receivedType:
-      | "number"
-      | "bigint"
-      | "boolean"
-      | "symbol"
-      | "undefined"
-      | "object"
-      | "function"
-      | "string"
-    }
+declare const input: unknown;
+declare const log: Function;
+
+const result = validatePesel(input);
+
+if (!result.ok) {
+  let error = result.error
+
+  switch (error.code) {
+    case 'INVALID_TYPE':
+       log('Input is of type: ', error.meta.receivedType)
+       log('Should be: ', error.meta.expectedType)
+       break;
+
+    case 'INVALID_LENGTH':
+       log('Input is of length: ', error.meta.receivedLength)
+       log('Should be of length: ', error.meta.expectedLength)
+       break;
+
+    case 'NOT_NUMERIC':
+      log('Input contains non-numeric characters');
+      break;
+
+    case 'ZEROED_OUT':
+      log('Input contains only zeros. Do not try to trick us.');
+      break;
+
+    case 'CONTROL_DIGIT_MISMATCH':
+      log('Input contains invalid control digit: ', error.meta.receivedControlDigit);
+      log('It should be: ', error.meta.expectedControlDigit);
+      log('Control digit position is: ', error.meta.controlDigitIndex + 1);
+      break;
   }
-  |
-  {
-    name: "PeselHasInvalidLength",
-    message: "PESEL has invalid length",
-    meta: {
-      expectedLength: 11,
-      receivedLength: number
-    }
-  }
-  |
-  {
-    name: "PeselContainsNonDigitCharacters",
-    message: "PESEL contains non-numeric characters"
-  }
-  |
-  {
-    name: "PeselContainsOnlyZeros",
-    message: "Received PESEL contains only digits equal to zero 0",
-  }
-  |
-  {
-    name: "PeselControlDigitMismatch",
-    message: "Calculated control digit does not match one contained in the PESEL",    
-    meta:
-    {
-      expectedControlDigit: number,
-      receivedControlDigit: number,
-      controlDigitIndex: number
-    }
- }
+}
 ```
