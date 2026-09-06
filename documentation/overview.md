@@ -70,8 +70,7 @@ if(!result.ok) {
   console.log("you know what path this is :(")
 
   // error is accessed as a value, never thrown
-  console.log("error name", result.error.name)
-  console.log("error message", result.error.message)
+  console.log("error code", result.error.code)
 }
 ```
 

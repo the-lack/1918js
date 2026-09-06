@@ -36,6 +36,7 @@ if (!result.ok) {
 
    case 'NOT_NUMERIC':
      log('Input contains non-numeric characters');
+     log('Invalid characters found: ', error.meta.invalidCharacters)
      break;
 
    case 'ZEROED_OUT':
@@ -81,6 +82,7 @@ if (!result.ok) {
 
    case 'NOT_NUMERIC':
      log('Input contains non-numeric characters');
+     log('Invalid characters found: ', error.meta.invalidCharacters)
      break;
 
    case 'ZEROED_OUT':
@@ -120,6 +122,7 @@ if (!result.ok) {
 
     case 'NOT_NUMERIC':
       log('Input contains non-numeric characters');
+      log('Invalid characters found: ', error.meta.invalidCharacters)
       break;
 
     case 'ZEROED_OUT':
