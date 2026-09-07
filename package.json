@@ -1,6 +1,6 @@
 {
   "name": "1918js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "the-lack",
   "repository": {
     "type": "git",
@@ -55,6 +55,6 @@
   "type": "module",
   "url": "https://github.com/the-lack/1918js/issues",
   "engines": {
-      "node": ">=7.0.0"
-  }  
+    "node": ">=7.0.0"
+  }
 }
