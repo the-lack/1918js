@@ -208,8 +208,6 @@ type RegonError =
     meta: {
       invalidCharacters: { character: string, index: number}[]
     }
-
-    
   }
   |
   {
