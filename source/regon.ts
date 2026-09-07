@@ -1,4 +1,4 @@
-import { err, ok, type Result } from './lib/result';
+import { err, ok, type Result } from './utilities/result';
 
 // ── module api ───────────────────────────────────────────────────────────────
 export { validateRegon }

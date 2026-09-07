@@ -1,5 +1,5 @@
 import { expect } from "bun:test";
-import {  scenario, given, when, then, and  } from "./lib/bdd-utility"
+import {  scenario, given, when, then, and  } from "./utilities/bdd-utility"
 import { validateRegon } from "./regon";
 
 // ── test data ────────────────────────────────────────────────────────────────

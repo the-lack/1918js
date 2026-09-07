@@ -1,8 +1,8 @@
 import { expect } from "bun:test";
 import fc from 'fast-check';
-import { scenario, given, when, then, and } from "./lib/bdd-utility"
+import { scenario, given, when, then, and } from "./utilities/bdd-utility"
 import { validateNip } from "./nip";
-import { get_fc_string_with_at_least_one_non_digit } from "./lib/fc-utilities";
+import { get_fc_string_with_at_least_one_non_digit } from "./utilities/fc-utilities";
 
 // ── test data ────────────────────────────────────────────────────────────────
 const example_nip = {
